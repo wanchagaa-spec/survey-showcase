@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>แบบฟอร์มรับความต้องการ · แบบสอบถาม / ข้อสอบออนไลน์</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;600&family=Sarabun:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#12313A; --accent:#DFA23C; --jade:#1E6E68; --paper:#EFF3F2;
+    --line:#D3DCDA; --muted:#63797E; --warn:#B2703A; --danger:#B23A2E;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Sarabun",-apple-system,sans-serif;font-size:16px;line-height:1.6;
+       color:var(--ink);background:var(--paper)}
+  h1,h2,h3,.num{font-family:"Bai Jamjuree","Sarabun",sans-serif}
+  .mono{font-family:"JetBrains Mono",monospace}
+
+  header{background:var(--ink);color:#fff;padding:30px 24px;position:relative}
+  header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;
+    background:linear-gradient(90deg,var(--accent) 0 30%,var(--jade) 30%)}
+  .wrap{max-width:1080px;margin:0 auto}
+  .eyebrow{font-size:13px;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);
+    font-weight:600;margin-bottom:6px;font-family:"Bai Jamjuree"}
+  header h1{font-size:27px;font-weight:700}
+  header p{color:#B7CBCF;font-size:15px;margin-top:6px;max-width:640px}
+
+  .cols{max-width:1080px;margin:0 auto;padding:26px 20px 60px;
+        display:grid;grid-template-columns:1fr 300px;gap:26px;align-items:start}
+  @media(max-width:920px){.cols{grid-template-columns:1fr}}
+
+  fieldset{background:#fff;border:1px solid var(--line);border-radius:14px;
+           padding:22px 20px;margin-bottom:16px}
+  fieldset.kind{border-color:var(--jade);box-shadow:0 0 0 3px rgba(30,110,104,.08)}
+  legend{display:flex;gap:11px;align-items:center;padding:0 0 4px}
+  .num{font-size:12px;font-weight:700;color:var(--accent);border:1.5px solid var(--accent);
+       border-radius:20px;padding:2px 10px;flex:none}
+  legend h2{font-size:18px;font-weight:600}
+  .badge{font-size:11px;font-weight:700;letter-spacing:.05em;border-radius:5px;
+    padding:2px 7px;margin-left:auto;flex:none}
+  .badge.s{background:#E6F0EF;color:var(--jade)}
+  .badge.e{background:#FBF0E2;color:var(--warn)}
+
+  .f{margin-top:20px}
+  .f > label,.f-label{display:block;font-weight:600;font-size:16px;margin-bottom:3px}
+  .hint{font-size:13.5px;color:var(--muted);margin-bottom:9px;line-height:1.5}
+  .req{color:var(--danger)}
+  .warn{font-size:13.5px;color:var(--warn);font-weight:600;margin-top:7px;display:none}
+  .warn.on{display:block}
+  .note{font-size:13.5px;background:#FBF0E2;border-left:3px solid var(--warn);
+    padding:10px 12px;border-radius:0 8px 8px 0;color:#6B4A22;margin-top:10px;line-height:1.55}
+
+  input[type=text],input[type=number],input[type=date],textarea{
+    width:100%;min-height:46px;padding:10px 13px;font:inherit;color:var(--ink);
+    border:1.5px solid var(--line);border-radius:9px;background:#fff}
+  textarea{min-height:88px;resize:vertical}
+  input:focus,textarea:focus{outline:none;border-color:var(--jade);
+    box-shadow:0 0 0 3px rgba(30,110,104,.13)}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{position:relative;display:flex;align-items:center;gap:8px;padding:9px 15px;
+    min-height:46px;border:1.5px solid var(--line);border-radius:9px;background:#fff;
+    cursor:pointer;font-size:15.5px;transition:.14s}
+  .chip:hover{border-color:var(--jade)}
+  .chip input{position:absolute;opacity:0;width:1px;height:1px}
+  .chip .dot{width:9px;height:9px;border-radius:50%;background:var(--line);flex:none}
+  .chip.on{border-color:var(--jade);background:#EEF5F4;font-weight:600}
+  .chip.on .dot{background:var(--jade)}
+  .chip:focus-within{outline:3px solid var(--jade);outline-offset:2px}
+  .tag{font-size:11px;font-weight:700;color:var(--warn);background:#FBF0E2;
+    border-radius:5px;padding:1px 6px}
+
+  .big{flex-direction:column;align-items:flex-start;gap:3px;padding:16px 18px;min-height:0}
+  .big b{font-size:16.5px;font-weight:600}
+  .big i{font-style:normal;font-size:13px;color:var(--muted);line-height:1.45}
+  .big.on i{color:#3E6C6B}
+
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:560px){.row{grid-template-columns:1fr}}
+  .swatch{display:flex;align-items:center;gap:10px}
+  input[type=color]{width:52px;min-height:46px;padding:3px;border:1.5px solid var(--line);
+    border-radius:9px;background:#fff;cursor:pointer}
+  .reveal{display:none;margin-top:14px;padding-left:16px;border-left:3px solid var(--accent)}
+  .reveal.on{display:block}
+  .only{display:none}
+  .only.on{display:block}
+
+  .pv-wrap{margin-top:22px;border:1px dashed var(--line);border-radius:14px;
+    padding:16px;background:var(--paper)}
+  .pv-cap{display:flex;justify-content:space-between;font-size:13px;
+    color:var(--muted);margin-bottom:12px}
+  .pv-cap b{font-family:"Bai Jamjuree";font-size:12px;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--jade)}
+  .pv{margin-bottom:12px}
+  .pv:last-child{margin-bottom:0}
+  .pv .pq{font-weight:600;margin-bottom:14px;line-height:1.5}
+  .pv .ptop{display:flex;justify-content:space-between;align-items:center;
+    font-size:13px;color:var(--pm);margin-bottom:12px}
+  .pv .ptime{font-weight:700;color:var(--pa)}
+  .pv .pset{display:flex;flex-direction:column;gap:9px}
+  .pv .pset.wrap{flex-direction:row;flex-wrap:wrap}
+  .pv .po{display:flex;align-items:center;gap:11px;cursor:pointer;
+    border:1.5px solid var(--pl);background:#fff;transition:.15s}
+  .pv .po.sel{border-color:var(--pa);background:var(--psel)}
+  .pv .pmark{flex:none;border:2px solid var(--pl);display:grid;place-items:center;
+    font-size:13px;font-weight:700;color:var(--pm)}
+  .pv .po.sel .pmark{border-color:var(--pa);background:var(--pa);color:#fff}
+  .pv .pscale{display:flex;gap:6px;margin-top:18px}
+  .pv .ps{flex:1;min-height:var(--ph);border:1.5px solid var(--pl);background:#fff;
+    color:var(--pm);font-family:inherit;font-size:19px;font-weight:600;cursor:pointer;
+    position:relative;overflow:hidden;display:flex;align-items:flex-end;
+    justify-content:center;padding-bottom:7px;transition:.18s}
+  .pv .ps::before{content:"";position:absolute;left:0;right:0;bottom:0;height:var(--fh,0);
+    background:var(--pa);transition:height .25s}
+  .pv .ps span{position:relative;z-index:1}
+  .pv .ps.f{color:var(--pi);border-color:var(--pa)}
+  .pv .pends{display:flex;justify-content:space-between;font-size:12px;
+    color:var(--pm);margin-top:7px}
+
+  aside{position:sticky;top:20px}
+  .panel{background:var(--ink);color:#fff;border-radius:14px;padding:20px}
+  .panel h3{font-size:15px;color:var(--accent);letter-spacing:.06em;text-transform:uppercase;
+    margin-bottom:4px}
+  .panel > p{font-size:13px;color:#8FA9AE;margin-bottom:16px;line-height:1.5}
+  .base{display:flex;justify-content:space-between;gap:10px;font-size:14px;padding:10px 0;
+    border-top:1px solid #2A4A53}
+  .base span:last-child{color:#B7CBCF;flex:none}
+  #adds:empty::after{content:"ยังไม่มีงานเพิ่มเติม";display:block;font-size:13.5px;
+    color:#5F7E85;padding:11px 0;border-top:1px solid #2A4A53}
+  .add{padding:11px 0;border-top:1px solid #2A4A53}
+  .add b{display:block;font-size:14.5px;font-weight:600;color:var(--accent)}
+  .add i{display:block;font-style:normal;font-size:12.5px;color:#8FA9AE;
+    line-height:1.45;margin-top:2px}
+  .total{margin-top:16px;padding-top:14px;border-top:2px solid var(--accent);
+    display:flex;justify-content:space-between;align-items:baseline}
+  .total span{font-size:14px;color:#B7CBCF}
+  .total strong{font-family:"Bai Jamjuree";font-size:22px;color:var(--accent)}
+  .terms{margin-top:14px;padding:12px 13px;background:#0C242B;border-radius:9px;
+    font-size:12.5px;color:#9DB6BB;line-height:1.55}
+  .terms b{color:var(--accent);display:block;margin-bottom:3px;font-size:13px}
+  .terms u{color:#fff;text-decoration:none;font-weight:700}
+
+  .acts{margin-top:14px;display:grid;gap:9px}
+  .btn{min-height:52px;border-radius:11px;border:none;cursor:pointer;
+    font-family:"Bai Jamjuree";font-size:16px;font-weight:600}
+  .btn.p{background:var(--accent);color:#2A1E08}
+  .btn.s{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+  .btn:focus-visible{outline:3px solid var(--jade);outline-offset:3px}
+  #say{font-size:13.5px;text-align:center;color:var(--muted);min-height:19px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">แบบฟอร์มรับความต้องการ</div>
+    <h1>แบบสอบถาม / ข้อสอบออนไลน์</h1>
+    <p>เลือกประเภทงานข้อแรก คำถามที่เหลือจะปรับให้ตรงกับงานของท่านเอง กรอกเท่าที่ทราบ เสร็จแล้วกดดาวน์โหลดไฟล์ส่งกลับมา</p>
+  </div>
+</header>
+
+<div class="cols">
+<form id="brief">
+
+  <fieldset class="kind">
+    <legend><span class="num">1</span><h2>ประเภทงาน</h2></legend>
+    <div class="f" style="margin-top:12px">
+      <div class="f-label">ต้องการทำอะไร <span class="req">*</span></div>
+      <div class="chips" style="flex-direction:column">
+        <label class="chip big" style="width:100%"><input type="radio" name="kind" value="แบบสอบถาม">
+          <b>แบบสอบถาม / แบบสำรวจ</b>
+          <i>เก็บความเห็น ความพึงพอใจ ไม่มีถูกผิด ไม่ต้องตรวจคะแนน</i></label>
+        <label class="chip big" style="width:100%"><input type="radio" name="kind" value="ข้อสอบออนไลน์">
+          <b>ข้อสอบ / แบบทดสอบออนไลน์</b>
+          <i>มีเฉลย ตรวจคะแนนอัตโนมัติ มีเกณฑ์ผ่าน ออกเกียรติบัตรได้</i></label>
+        <label class="chip big" style="width:100%"><input type="radio" name="kind" value="ทั้งสองอย่าง">
+          <b>ทั้งสองอย่าง</b>
+          <i>เช่น ทำข้อสอบก่อน แล้วตามด้วยแบบประเมินความพึงพอใจการอบรม</i></label>
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- ═══ ส่วนกลาง ═══ -->
+  <fieldset>
+    <legend><span class="num">2</span><h2>เป้าหมายและผู้ใช้งาน</h2></legend>
+
+    <div class="f">
+      <label for="purpose">งานนี้ใช้ทำอะไร <span class="req">*</span></label>
+      <div class="hint">เขียนสั้น ๆ เช่น ประเมินความพึงพอใจผู้รับบริการ หรือ ทดสอบความรู้หลังอบรม CPR</div>
+      <input type="text" id="purpose" name="purpose">
+    </div>
+
+    <div class="f">
+      <label for="who">ใครเป็นคนตอบ / คนสอบ <span class="req">*</span></label>
+      <input type="text" id="who" name="who" placeholder="เช่น ผู้ป่วยที่มารับบริการ / เจ้าหน้าที่ที่เข้าอบรม">
+    </div>
+
+    <div class="f">
+      <label for="volume">คาดว่ามีคนใช้ประมาณกี่คน</label>
+      <input type="text" id="volume" name="volume" placeholder="เช่น 300 คน/เดือน">
+    </div>
+  </fieldset>
+
+  <!-- ═══ เฉพาะแบบสอบถาม ═══ -->
+  <fieldset class="only" data-only="แบบสอบถาม">
+    <legend><span class="num">S</span><h2>รายละเอียดแบบสอบถาม</h2><span class="badge s">แบบสอบถาม</span></legend>
+
+    <div class="f">
+      <div class="f-label">ต้องการเก็บข้อมูลผู้ตอบหรือไม่ <span class="req">*</span></div>
+      <div class="hint">ถ้าไม่เก็บ จะเป็นแบบไม่ระบุตัวตน คนตอบกล้าให้ความเห็นตรงกว่า และไม่ต้องทำเอกสาร PDPA</div>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="collect" value="ไม่เก็บ"><span class="dot"></span>ไม่เก็บ</label>
+        <label class="chip"><input type="radio" name="collect" value="เก็บ" data-add="pdpa" data-reveal="pii"><span class="dot"></span>เก็บ<span class="tag">งานเพิ่ม</span></label>
+      </div>
+      <div class="reveal" id="r-pii">
+        <div class="f-label">ระบุข้อมูลที่ต้องเก็บ</div>
+        <div class="chips">
+          <label class="chip"><input type="checkbox" name="piiFields" value="ชื่อ-สกุล"><span class="dot"></span>ชื่อ–สกุล</label>
+          <label class="chip"><input type="checkbox" name="piiFields" value="เบอร์โทร"><span class="dot"></span>เบอร์โทร</label>
+          <label class="chip"><input type="checkbox" name="piiFields" value="HN"><span class="dot"></span>HN</label>
+          <label class="chip"><input type="checkbox" name="piiFields" value="อีเมล"><span class="dot"></span>อีเมล</label>
+          <label class="chip"><input type="checkbox" name="piiFields" value="แผนก"><span class="dot"></span>แผนก</label>
+        </div>
+        <div class="f">
+          <label for="piiOther">อื่น ๆ และเหตุผลที่ต้องเก็บ</label>
+          <input type="text" id="piiOther" name="piiOther" placeholder="เช่น เก็บเบอร์เพื่อติดต่อกลับกรณีร้องเรียน">
+        </div>
+      </div>
+    </div>
+
+    <div class="f">
+      <label for="qcount">จำนวนคำถามโดยประมาณ <span class="req">*</span></label>
+      <div class="hint">ราคาพื้นฐานรวมคำถามไม่เกิน 50 ข้อ เกินกว่านั้นคิดค่าใช้จ่ายเพิ่ม</div>
+      <input type="number" id="qcount" name="qcount" min="1" max="300" placeholder="เช่น 12">
+      <div class="warn" id="w50">เกิน 50 ข้อ จะมีค่าใช้จ่ายเพิ่มเติม</div>
+    </div>
+
+    <div class="f">
+      <div class="f-label">รูปแบบคำถามที่ต้องใช้</div>
+      <div class="chips">
+        <label class="chip"><input type="checkbox" name="qtypes" value="ให้คะแนน 1-5"><span class="dot"></span>ให้คะแนน 1–5</label>
+        <label class="chip"><input type="checkbox" name="qtypes" value="เลือกตอบเดียว"><span class="dot"></span>เลือกตอบเดียว</label>
+        <label class="chip"><input type="checkbox" name="qtypes" value="เลือกหลายข้อ"><span class="dot"></span>เลือกหลายข้อ</label>
+        <label class="chip"><input type="checkbox" name="qtypes" value="เขียนข้อความ"><span class="dot"></span>เขียนข้อความ</label>
+      </div>
+    </div>
+
+    <div class="f">
+      <div class="f-label">มีคำถามที่ต้องข้ามข้ออัตโนมัติหรือไม่</div>
+      <div class="hint">เช่น ตอบ "ไม่เคยใช้บริการ" แล้วข้ามคำถามความพึงพอใจไปเลย</div>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="skip" value="ไม่มี"><span class="dot"></span>ไม่มี</label>
+        <label class="chip"><input type="radio" name="skip" value="มี" data-add="skip"><span class="dot"></span>มี<span class="tag">งานเพิ่ม</span></label>
+        <label class="chip"><input type="radio" name="skip" value="ยังไม่แน่ใจ"><span class="dot"></span>ยังไม่แน่ใจ</label>
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- ═══ เฉพาะข้อสอบ ═══ -->
+  <fieldset class="only" data-only="ข้อสอบออนไลน์">
+    <legend><span class="num">E</span><h2>รายละเอียดข้อสอบ</h2><span class="badge e">ข้อสอบ</span></legend>
+
+    <div class="f">
+      <div class="f-label">ลักษณะการใช้งาน <span class="req">*</span></div>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="examUse" value="ทดสอบก่อน-หลังอบรม" data-add="prepost"><span class="dot"></span>ก่อน–หลังอบรม<span class="tag">งานเพิ่ม</span></label>
+        <label class="chip"><input type="radio" name="examUse" value="สอบวัดผลจริง"><span class="dot"></span>สอบวัดผลจริง</label>
+        <label class="chip"><input type="radio" name="examUse" value="แบบฝึกหัด ทำทบทวนได้"><span class="dot"></span>แบบฝึกหัด ทบทวนได้</label>
+      </div>
+    </div>
+
+    <div class="f">
+      <div class="f-label">ข้อมูลผู้เข้าสอบที่ต้องกรอก <span class="req">*</span></div>
+      <div class="hint">ข้อสอบต้องระบุตัวตน ไม่งั้นออกผลสอบและเกียรติบัตรไม่ได้</div>
+      <div class="chips">
+        <label class="chip"><input type="checkbox" name="examId" value="ชื่อ-สกุล"><span class="dot"></span>ชื่อ–สกุล</label>
+        <label class="chip"><input type="checkbox" name="examId" value="รหัสพนักงาน/นักเรียน"><span class="dot"></span>รหัสพนักงาน</label>
+        <label class="chip"><input type="checkbox" name="examId" value="หน่วยงาน/แผนก"><span class="dot"></span>หน่วยงาน</label>
+        <label class="chip"><input type="checkbox" name="examId" value="อีเมล"><span class="dot"></span>อีเมล</label>
+        <label class="chip"><input type="checkbox" name="examId" value="เลขบัตรประชาชน"><span class="dot"></span>เลขบัตรประชาชน</label>
+      </div>
+    </div>
+
+    <div class="f">
+      <label for="examCount">จำนวนข้อสอบ <span class="req">*</span></label>
+      <div class="hint">ราคาพื้นฐานรวมไม่เกิน 50 ข้อ เกินกว่านั้นคิดค่าใช้จ่ายเพิ่ม</div>
+      <input type="number" id="examCount" name="examCount" min="1" max="500" placeholder="เช่น 20">
+      <div class="warn" id="wE50">เกิน 50 ข้อ จะมีค่าใช้จ่ายเพิ่มเติม</div>
+    </div>
+
+    <div class="f">
+      <div class="f-label">ชนิดข้อสอบ <span class="req">*</span></div>
+      <div class="chips">
+        <label class="chip"><input type="checkbox" name="examTypes" value="ปรนัย 4 ตัวเลือก"><span class="dot"></span>ปรนัย 4 ตัวเลือก</label>
+        <label class="chip"><input type="checkbox" name="examTypes" value="ถูก/ผิด"><span class="dot"></span>ถูก / ผิด</label>
+        <label class="chip"><input type="checkbox" name="examTypes" value="เลือกหลายคำตอบ"><span class="dot"></span>เลือกหลายคำตอบ</label>
+        <label class="chip"><input type="checkbox" name="examTypes" value="เติมคำ"><span class="dot"></span>เติมคำ</label>
+        <label class="chip"><input type="checkbox" name="examTypes" value="อัตนัย" data-add="essay"><span class="dot"></span>อัตนัย เขียนตอบ<span class="tag">ตรวจมือ</span></label>
+      </div>
+      <div class="note only" data-showif="essay">
+        ข้อสอบอัตนัยตรวจอัตโนมัติไม่ได้ ต้องมีหน้าให้อาจารย์เข้ามาให้คะแนนเอง และคะแนนรวมจะออกหลังตรวจเสร็จ ไม่ใช่ทันทีหลังส่ง
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="f">
+        <label for="pass">เกณฑ์ผ่าน (%)</label>
+        <input type="number" id="pass" name="pass" min="0" max="100" value="60">
+      </div>
+      <div class="f">
+        <div class="f-label">จับเวลาทำข้อสอบ</div>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="timer" value="ไม่จำกัดเวลา"><span class="dot"></span>ไม่จำกัด</label>
+          <label class="chip"><input type="radio" name="timer" value="จำกัดเวลา" data-add="timer" data-reveal="tm"><span class="dot"></span>จำกัดเวลา<span class="tag">งานเพิ่ม</span></label>
+        </div>
+        <div class="reveal" id="r-tm">
+          <label for="timeLimit">กี่นาที</label>
+          <input type="number" id="timeLimit" name="timeLimit" min="1" max="300" placeholder="เช่น 30">
+        </div>
+      </div>
+    </div>
+
+    <div class="f">
+      <div class="f-label">แสดงผลหลังส่งข้อสอบ <span class="req">*</span></div>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="showResult" value="แสดงคะแนนทันที"><span class="dot"></span>แสดงคะแนนทันที</label>
+        <label class="chip"><input type="radio" name="showResult" value="แสดงคะแนน + เฉลย" data-add="answers"><span class="dot"></span>คะแนน + เฉลย<span class="tag">งานเพิ่ม</span></label>
+        <label class="chip"><input type="radio" name="showResult" value="ไม่แสดง ให้ผู้ดูแลดูเอง"><span class="dot"></span>ไม่แสดง</label>
+      </div>
+    </div>
+
+    <div class="f">
+      <div class="f-label">ทำข้อสอบได้กี่ครั้ง</div>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="attempts" value="ครั้งเดียว"><span class="dot"></span>ครั้งเดียว</label>
+        <label class="chip"><input type="radio" name="attempts" value="ทำซ้ำได้ เก็บคะแนนดีที่สุด" data-add="retry"><span class="dot"></span>ทำซ้ำได้ เก็บคะแนนดีที่สุด<span class="tag">งานเพิ่ม</span></label>
+      </div>
+    </div>
+
+    <div class="f">
+      <div class="f-label">การสุ่มข้อสอบ</div>
+      <div class="chips">
+        <label class="chip"><input type="checkbox" name="shuffle" value="สุ่มลำดับข้อ" data-add="shuffle"><span class="dot"></span>สุ่มลำดับข้อ<span class="tag">งานเพิ่ม</span></label>
+        <label class="chip"><input type="checkbox" name="shuffle" value="สุ่มลำดับตัวเลือก" data-add="shuffle"><span class="dot"></span>สุ่มลำดับตัวเลือก<span class="tag">งานเพิ่ม</span></label>
+        <label class="chip"><input type="checkbox" name="shuffle" value="สุ่มจากคลังข้อสอบ" data-add="bank"><span class="dot"></span>สุ่ม 20 จากคลัง 100 ข้อ<span class="tag">งานใหญ่</span></label>
+      </div>
+    </div>
+
+    <div class="f">
+      <div class="f-label">ป้องกันการทุจริต</div>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="anti" value="ไม่ต้อง"><span class="dot"></span>ไม่ต้อง</label>
+        <label class="chip"><input type="radio" name="anti" value="ป้องกันเบื้องต้น" data-add="anti"><span class="dot"></span>ป้องกันเบื้องต้น<span class="tag">งานเพิ่ม</span></label>
+      </div>
+      <div class="note">
+        ป้องกันได้เฉพาะระดับเบราว์เซอร์ เช่น ปิดคลิกขวา ปิด copy จับการสลับแท็บแล้วบันทึกไว้
+        <b>ไม่สามารถกันได้ 100%</b> ถ้าต้องการความเข้มงวดจริง ต้องคุมสอบในห้อง
+      </div>
+    </div>
+
+    <div class="f">
+      <div class="f-label">เกียรติบัตรอัตโนมัติเมื่อสอบผ่าน</div>
+      <div class="hint">ระบบสร้าง PDF ใส่ชื่อผู้สอบ วันที่ และลายเซ็นผู้บริหาร ให้ดาวน์โหลดเองได้ทันที</div>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="cert" value="ไม่ต้อง"><span class="dot"></span>ไม่ต้อง</label>
+        <label class="chip"><input type="radio" name="cert" value="ต้องการ" data-add="cert"><span class="dot"></span>ต้องการ<span class="tag">งานเพิ่ม</span></label>
+      </div>
+    </div>
+
+    <div class="f">
+      <div class="f-label">ส่งผลสอบทางอีเมลให้ผู้สอบ</div>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="mailResult" value="ไม่ต้อง"><span class="dot"></span>ไม่ต้อง</label>
+        <label class="chip"><input type="radio" name="mailResult" value="ต้องการ" data-add="mailres"><span class="dot"></span>ต้องการ<span class="tag">งานเพิ่ม</span></label>
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- ═══ ดีไซน์ (ใช้ร่วมกัน) ═══ -->
+  <fieldset>
+    <legend><span class="num">3</span><h2>ดีไซน์และหน้าตา</h2></legend>
+
+    <div class="f">
+      <div class="f-label">โทนโดยรวม <span class="req">*</span></div>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="tone" value="ทางการ ราชการ"><span class="dot"></span>ทางการ ราชการ</label>
+        <label class="chip"><input type="radio" name="tone" value="สะอาด มินิมอล"><span class="dot"></span>สะอาด มินิมอล</label>
+        <label class="chip"><input type="radio" name="tone" value="อบอุ่น เป็นกันเอง"><span class="dot"></span>อบอุ่น เป็นกันเอง</label>
+        <label class="chip"><input type="radio" name="tone" value="ทันสมัย มีสีสัน"><span class="dot"></span>ทันสมัย มีสีสัน</label>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="f">
+        <div class="f-label">สีหลัก</div>
+        <div class="swatch"><input type="color" name="colorInk" value="#12313A">
+          <input type="text" id="tInk" class="mono" value="#12313A"></div>
+      </div>
+      <div class="f">
+        <div class="f-label">สีเน้น</div>
+        <div class="swatch"><input type="color" name="colorAccent" value="#DFA23C">
+          <input type="text" id="tAcc" class="mono" value="#DFA23C"></div>
+      </div>
+    </div>
+
+    <div class="f">
+      <div class="f-label">ฟอนต์</div>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="font" value="Sarabun" checked><span class="dot"></span>Sarabun (มาตรฐานราชการ)</label>
+        <label class="chip"><input type="radio" name="font" value="Noto Sans Thai"><span class="dot"></span>Noto Sans Thai</label>
+        <label class="chip"><input type="radio" name="font" value="IBM Plex Sans Thai"><span class="dot"></span>IBM Plex Sans Thai</label>
+      </div>
+    </div>
+
+    <div class="f">
+      <div class="f-label">รูปแบบปุ่มตัวเลือก</div>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="optStyle" value="การ์ดใหญ่เต็มบรรทัด" checked><span class="dot"></span>การ์ดใหญ่เต็มบรรทัด</label>
+        <label class="chip"><input type="radio" name="optStyle" value="ปุ่มเรียงแนวนอน"><span class="dot"></span>ปุ่มเรียงแนวนอน</label>
+        <label class="chip"><input type="radio" name="optStyle" value="วงกลมแบบดั้งเดิม"><span class="dot"></span>วงกลมแบบดั้งเดิม</label>
+      </div>
+    </div>
+
+    <div class="f only" data-only="แบบสอบถาม">
+      <div class="f-label">รูปแบบคำถามให้คะแนน</div>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="scaleStyle" value="แถบไล่เติมสี" checked><span class="dot"></span>แถบไล่เติมสี</label>
+        <label class="chip"><input type="radio" name="scaleStyle" value="ดาว"><span class="dot"></span>ดาว</label>
+        <label class="chip"><input type="radio" name="scaleStyle" value="หน้ายิ้ม"><span class="dot"></span>หน้ายิ้ม</label>
+        <label class="chip"><input type="radio" name="scaleStyle" value="ตัวเลขเรียบ"><span class="dot"></span>ตัวเลขเรียบ ๆ</label>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="f">
+        <div class="f-label">ความโค้งของมุม</div>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="radius" value="เหลี่ยม"><span class="dot"></span>เหลี่ยม</label>
+          <label class="chip"><input type="radio" name="radius" value="โค้งพอดี" checked><span class="dot"></span>โค้งพอดี</label>
+          <label class="chip"><input type="radio" name="radius" value="โค้งมาก"><span class="dot"></span>โค้งมาก</label>
+        </div>
+      </div>
+      <div class="f">
+        <div class="f-label">ขนาดตัวอักษร</div>
+        <div class="hint">เลือกใหญ่พิเศษ ถ้าผู้ใช้ส่วนใหญ่เป็นผู้สูงอายุ</div>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="fontSize" value="มาตรฐาน" checked><span class="dot"></span>มาตรฐาน</label>
+          <label class="chip"><input type="radio" name="fontSize" value="ใหญ่พิเศษ"><span class="dot"></span>ใหญ่พิเศษ</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="pv-wrap">
+      <div class="pv-cap"><b>ตัวอย่างสด</b><span>เปลี่ยนตามที่ท่านเลือก · กดลองได้</span></div>
+      <div id="pvSurvey" class="pv only" data-only="แบบสอบถาม"></div>
+      <div id="pvExam" class="pv only" data-only="ข้อสอบออนไลน์"></div>
+    </div>
+
+    <div class="f">
+      <div class="f-label">การแสดงคำถาม</div>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="layout" value="ทุกข้อในหน้าเดียว"><span class="dot"></span>ทุกข้อในหน้าเดียว</label>
+        <label class="chip"><input type="radio" name="layout" value="ทีละข้อ" data-add="step"><span class="dot"></span>ทีละข้อ กดถัดไป<span class="tag">งานเพิ่ม</span></label>
+      </div>
+    </div>
+
+    <div class="f">
+      <div class="f-label">ป๊อบอัพเวลากดส่ง</div>
+      <div class="hint">ป๊อบอัพยืนยันช่วยลดการกดส่งผิด สำคัญมากสำหรับข้อสอบที่ทำได้ครั้งเดียว</div>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="popup" value="กดส่งแล้วส่งเลย"><span class="dot"></span>ส่งเลย</label>
+        <label class="chip"><input type="radio" name="popup" value="ป๊อบอัพยืนยันก่อนส่ง"><span class="dot"></span>ยืนยันก่อนส่ง</label>
+        <label class="chip"><input type="radio" name="popup" value="ยืนยันก่อนส่ง + ป๊อบอัพแสดงผลหลังส่ง"><span class="dot"></span>ยืนยัน + แสดงผลหลังส่ง</label>
+      </div>
+    </div>
+
+    <div class="f">
+      <div class="f-label">เอฟเฟกต์และการเคลื่อนไหว</div>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="motion" value="เรียบนิ่ง"><span class="dot"></span>เรียบนิ่ง</label>
+        <label class="chip"><input type="radio" name="motion" value="นุ่มนวลพอประมาณ"><span class="dot"></span>นุ่มนวลพอประมาณ</label>
+        <label class="chip"><input type="radio" name="motion" value="มีชีวิตชีวา"><span class="dot"></span>มีชีวิตชีวา</label>
+      </div>
+    </div>
+
+    <div class="f">
+      <div class="f-label">ผู้ใช้ใช้เครื่องอะไรเป็นหลัก <span class="req">*</span></div>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="device" value="มือถือ"><span class="dot"></span>มือถือ</label>
+        <label class="chip"><input type="radio" name="device" value="คอมพิวเตอร์"><span class="dot"></span>คอมพิวเตอร์</label>
+        <label class="chip"><input type="radio" name="device" value="ทั้งสองอย่าง"><span class="dot"></span>ทั้งสองอย่าง</label>
+      </div>
+    </div>
+
+    <div class="f">
+      <div class="f-label">เข้าถึงทางไหน</div>
+      <div class="chips">
+        <label class="chip"><input type="checkbox" name="access" value="QR code"><span class="dot"></span>สแกน QR</label>
+        <label class="chip"><input type="checkbox" name="access" value="LINE"><span class="dot"></span>ลิงก์ใน LINE</label>
+        <label class="chip"><input type="checkbox" name="access" value="อีเมล"><span class="dot"></span>อีเมล</label>
+        <label class="chip"><input type="checkbox" name="access" value="เว็บหน่วยงาน"><span class="dot"></span>เว็บหน่วยงาน</label>
+      </div>
+    </div>
+
+    <div class="f">
+      <div class="f-label">ต้องมีภาษาอังกฤษด้วยหรือไม่</div>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="lang" value="ไทยอย่างเดียว"><span class="dot"></span>ไทยอย่างเดียว</label>
+        <label class="chip"><input type="radio" name="lang" value="ไทย+อังกฤษ" data-add="lang"><span class="dot"></span>ไทย + อังกฤษ<span class="tag">งานเพิ่ม</span></label>
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- ═══ ข้อมูลและรายงาน ═══ -->
+  <fieldset>
+    <legend><span class="num">4</span><h2>ข้อมูลและรายงาน</h2></legend>
+
+    <div class="f">
+      <div class="f-label">ใครดูผลได้บ้าง <span class="req">*</span></div>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="viewer" value="ดูในชีตโดยตรง"><span class="dot"></span>ดูในชีตโดยตรง</label>
+        <label class="chip"><input type="radio" name="viewer" value="หน้าเว็บที่ต้องใส่รหัส" data-add="auth"><span class="dot"></span>หน้าเว็บ ใส่รหัสก่อนดู<span class="tag">งานเพิ่ม</span></label>
+      </div>
+    </div>
+
+    <div class="f">
+      <div class="f-label">ต้องการหน้าสรุปผลหรือไม่ <span class="req">*</span></div>
+      <div class="hint only" data-only="ข้อสอบออนไลน์">สำหรับข้อสอบ หน้าสรุปจะแสดงคะแนนเฉลี่ย อัตราผ่าน และข้อที่คนตอบผิดมากที่สุด</div>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="dashboard" value="ไม่ต้อง"><span class="dot"></span>ไม่ต้อง</label>
+        <label class="chip"><input type="radio" name="dashboard" value="สรุปพื้นฐาน" data-add="dash1"><span class="dot"></span>สรุปพื้นฐาน<span class="tag">งานเพิ่ม</span></label>
+        <label class="chip"><input type="radio" name="dashboard" value="สรุปเต็มรูปแบบ" data-add="dash2"><span class="dot"></span>เต็มรูปแบบ<span class="tag">งานเพิ่ม</span></label>
+      </div>
+    </div>
+
+    <div class="f">
+      <div class="f-label">ต้อง export เป็นไฟล์อะไรบ้าง</div>
+      <div class="chips">
+        <label class="chip"><input type="checkbox" name="exports" value="Excel"><span class="dot"></span>Excel</label>
+        <label class="chip"><input type="checkbox" name="exports" value="PDF รายงาน" data-add="pdf"><span class="dot"></span>PDF รายงาน<span class="tag">งานเพิ่ม</span></label>
+      </div>
+    </div>
+
+    <div class="f">
+      <div class="f-label">ต้องแจ้งเตือนอัตโนมัติหรือไม่</div>
+      <div class="hint">เช่น คะแนนความพึงพอใจต่ำกว่า 3 หรือมีคนสอบไม่ผ่าน ให้ส่งอีเมลแจ้งหัวหน้า</div>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="alert" value="ไม่ต้อง"><span class="dot"></span>ไม่ต้อง</label>
+        <label class="chip"><input type="radio" name="alert" value="ต้องการ" data-add="alert"><span class="dot"></span>ต้องการ<span class="tag">งานเพิ่ม</span></label>
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- ═══ เงื่อนไข ═══ -->
+  <fieldset>
+    <legend><span class="num">5</span><h2>เงื่อนไขงาน</h2></legend>
+
+    <div class="f">
+      <div class="f-label">ใช้บัญชี Google และ GitHub ของใคร <span class="req">*</span></div>
+      <div class="hint">แนะนำให้ใช้บัญชีของหน่วยงาน ข้อมูลอยู่ในมือท่านเอง และไม่มีค่าใช้จ่ายรายปี</div>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="account" value="บัญชีของหน่วยงาน"><span class="dot"></span>ของหน่วยงานเอง</label>
+        <label class="chip"><input type="radio" name="account" value="ให้ผู้พัฒนาจัดหาให้" data-add="host"><span class="dot"></span>ให้ผู้พัฒนาจัดหา<span class="tag">มีค่าดูแล</span></label>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="f">
+        <label for="deadline">ต้องการใช้งานภายในวันที่</label>
+        <input type="date" id="deadline" name="deadline">
+      </div>
+      <div class="f">
+        <div class="f-label">ต้องการดูแลหลังส่งมอบหรือไม่</div>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="care" value="ไม่ต้อง"><span class="dot"></span>ไม่ต้อง</label>
+          <label class="chip"><input type="radio" name="care" value="ต้องการ"><span class="dot"></span>ต้องการ</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="f">
+      <label for="notes">ความต้องการเพิ่มเติม</label>
+      <textarea id="notes" name="notes" placeholder="อยากได้อะไรเป็นพิเศษ หรือมีเว็บตัวอย่างที่ชอบ บอกได้เลย"></textarea>
+    </div>
+  </fieldset>
+</form>
+
+<aside>
+  <div class="panel">
+    <h3>ขอบเขตงาน</h3>
+    <p>อัปเดตตามที่ท่านเลือก ใช้ประเมินเวลาและราคาเบื้องต้น</p>
+    <div id="basis"></div>
+    <div id="adds"></div>
+    <div class="total"><span>ประเมินเวลาทำงาน</span><strong id="days">—</strong></div>
+    <div class="terms">
+      <b>การแก้ไขหลังส่งมอบ</b>
+      แก้ไขหรือเพิ่มคำถาม <u>ฟรี 3 ครั้ง</u> ครั้งที่ 4 เป็นต้นไป คิดค่าใช้จ่ายเพิ่มตามปริมาณงาน
+    </div>
+  </div>
+  <div class="acts">
+    <button type="button" class="btn p" id="dl">ดาวน์โหลดไฟล์ส่งกลับ</button>
+    <button type="button" class="btn s" id="cp">คัดลอกเป็นข้อความ</button>
+    <div id="say"></div>
+  </div>
+</aside>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  const $  = s => document.querySelector(s);
+  const $$ = s => [...document.querySelectorAll(s)];
+  const val = n => { const e = $('[name="' + n + '"]:checked'); return e ? e.value : ""; };
+
+  const ADDONS = {
+    /* แบบสอบถาม */
+    pdpa:   ["เก็บข้อมูลผู้ตอบ", "ต้องมีข้อความขอความยินยอม PDPA และจำกัดสิทธิ์เข้าถึงข้อมูล", 1],
+    skip:   ["เงื่อนไขข้ามข้อ", "กำหนดเส้นทางคำตอบและทดสอบทุกเส้นทาง", 0.5],
+    over50: ["คำถามเกิน 50 ข้อ", "คิดค่าใช้จ่ายเพิ่มตามจำนวนที่เกิน", 1],
+    /* ข้อสอบ */
+    prepost:["ทดสอบก่อน–หลังอบรม", "ต้องจับคู่ผลสอบของคนเดิม และคำนวณคะแนนพัฒนาการ", 1],
+    essay:  ["ข้อสอบอัตนัย", "ต้องมีหน้าให้อาจารย์ตรวจและให้คะแนนเอง", 1],
+    timer:  ["จับเวลาทำข้อสอบ", "นับถอยหลัง ส่งอัตโนมัติเมื่อหมดเวลา กันปิดหน้าหนี", 0.5],
+    answers:["แสดงเฉลยหลังส่ง", "หน้าสรุปข้อที่ถูก–ผิด พร้อมคำอธิบาย", 0.5],
+    retry:  ["ทำซ้ำได้ เก็บคะแนนดีที่สุด", "ต้องเก็บทุกครั้งที่ทำและเลือกคะแนนสูงสุด", 0.5],
+    shuffle:["สุ่มลำดับข้อ/ตัวเลือก", "สุ่มไม่ให้ซ้ำกันแต่ละคน และแมปคำตอบกลับให้ถูกข้อ", 0.5],
+    bank:   ["คลังข้อสอบ", "เก็บข้อสอบในชีต สุ่มออกมาบางส่วนต่อคน", 1.5],
+    anti:   ["ป้องกันทุจริตเบื้องต้น", "ปิด copy จับการสลับแท็บ บันทึกพฤติกรรมผิดปกติ", 1],
+    cert:   ["เกียรติบัตรอัตโนมัติ", "สร้าง PDF ใส่ชื่อและวันที่ ดาวน์โหลดได้ทันทีเมื่อผ่านเกณฑ์", 1.5],
+    mailres:["ส่งผลสอบทางอีเมล", "ส่งคะแนนและเกียรติบัตรเข้าอีเมลผู้สอบอัตโนมัติ", 0.5],
+    /* ใช้ร่วม */
+    step:   ["แสดงทีละข้อ", "หน้าเลื่อนทีละคำถามพร้อมปุ่มย้อนกลับ", 0.5],
+    lang:   ["สองภาษา", "แปลทั้งชุดและเพิ่มปุ่มสลับภาษา", 1],
+    auth:   ["หน้าดูผลแบบใส่รหัส", "จำกัดคนดูผลด้วยรหัสผ่าน", 0.5],
+    dash1:  ["หน้าสรุปผลพื้นฐาน", "ค่าเฉลี่ยรายข้อ จำนวนผู้ทำ", 1],
+    dash2:  ["หน้าสรุปผลเต็มรูปแบบ", "กราฟแนวโน้ม แยกกลุ่ม กรองข้อมูลได้", 2],
+    pdf:    ["ออกรายงาน PDF", "จัดหน้ารายงานพร้อมพิมพ์เสนอผู้บริหาร", 1],
+    alert:  ["แจ้งเตือนอัตโนมัติ", "ส่งอีเมลเมื่อเข้าเงื่อนไขที่กำหนด", 0.5],
+    host:   ["ผู้พัฒนาดูแลบัญชีให้", "มีค่าดูแลรายปี ข้อมูลไม่ได้อยู่ในบัญชีของท่าน", 0]
+  };
+  const BASE = { "แบบสอบถาม":2, "ข้อสอบออนไลน์":3, "ทั้งสองอย่าง":4.5 };
+  const FREE_Q = 50;
+
+  const kind    = () => val("kind");
+  const isSurvey= () => ["แบบสอบถาม","ทั้งสองอย่าง"].includes(kind());
+  const isExam  = () => ["ข้อสอบออนไลน์","ทั้งสองอย่าง"].includes(kind());
+
+  /* แสดง/ซ่อนตามประเภทงาน */
+  function branch(){
+    $$(".only[data-only]").forEach(el => {
+      const t = el.dataset.only;
+      const on = (t === "แบบสอบถาม" && isSurvey()) || (t === "ข้อสอบออนไลน์" && isExam());
+      el.classList.toggle("on", on);
+    });
+    const essay = !!$('[name="examTypes"][value="อัตนัย"]:checked');
+    $$('.only[data-showif="essay"]').forEach(el => el.classList.toggle("on", essay && isExam()));
+  }
+
+  $$(".chip input").forEach(i => {
+    if (i.checked) i.closest(".chip").classList.add("on");
+    i.addEventListener("change", () => {
+      const g = i.closest(".chips");
+      if (i.type === "radio") g.querySelectorAll(".chip").forEach(c => c.classList.remove("on"));
+      i.closest(".chip").classList.toggle("on", i.checked);
+      g.querySelectorAll("[data-reveal]").forEach(x => {
+        const r = document.getElementById("r-" + x.dataset.reveal);
+        if (r) r.classList.toggle("on", x.checked);
+      });
+      branch(); scope(); paint();
+    });
+  });
+
+  [["colorInk","tInk"], ["colorAccent","tAcc"]].forEach(([n,t]) => {
+    const c = $('[name="' + n + '"]'), x = document.getElementById(t);
+    c.oninput = () => { x.value = c.value.toUpperCase(); paint(); };
+    x.oninput = () => { if (/^#[0-9a-f]{6}$/i.test(x.value)) { c.value = x.value; paint(); } };
+  });
+
+  ["qcount","examCount"].forEach(id => {
+    const el = document.getElementById(id);
+    el.oninput = () => {
+      const w = document.getElementById(id === "qcount" ? "w50" : "wE50");
+      w.classList.toggle("on", (+el.value || 0) > FREE_Q);
+      scope();
+    };
+  });
+
+  function keys(){
+    const k = $$(".chip input:checked")
+      .filter(i => { const f = i.closest(".only[data-only]"); return !f || f.classList.contains("on"); })
+      .map(i => i.dataset.add).filter(Boolean);
+    if (isSurvey() && (+$("#qcount").value || 0) > FREE_Q) k.push("over50");
+    if (isExam()   && (+$("#examCount").value || 0) > FREE_Q) k.push("over50");
+    return [...new Set(k)];
+  }
+
+  function scope(){
+    const k = kind();
+    const b = $("#basis");
+    b.innerHTML = "";
+    if (!k){
+      b.innerHTML = '<div class="base"><span>เลือกประเภทงานก่อน</span><span>—</span></div>';
+      $("#adds").innerHTML = "";
+      $("#days").textContent = "—";
+      return;
+    }
+    const rows = [[k === "ทั้งสองอย่าง" ? "แบบสอบถาม + ข้อสอบ" : k, "รวมแล้ว"],
+                  ["ไม่เกิน 50 ข้อ", "รวมแล้ว"]];
+    if (isExam()) rows.push(["ตรวจคะแนนอัตโนมัติ", "รวมแล้ว"]);
+    rows.forEach(([a, c]) => {
+      const el = document.createElement("div");
+      el.className = "base";
+      el.innerHTML = "<span>" + a + "</span><span>" + c + "</span>";
+      b.appendChild(el);
+    });
+
+    const box = $("#adds");
+    box.innerHTML = "";
+    let d = BASE[k];
+    keys().forEach(x => {
+      const a = ADDONS[x];
+      if (!a) return;
+      d += a[2];
+      const el = document.createElement("div");
+      el.className = "add";
+      el.innerHTML = "<b>" + a[0] + "</b><i>" + a[1] + "</i>";
+      box.appendChild(el);
+    });
+    $("#days").textContent = (d % 1 ? d.toFixed(1) : d) + " วัน";
+  }
+
+  /* ตัวอย่างสด */
+  const SOPT = ["พึงพอใจมาก", "พึงพอใจ", "ควรปรับปรุง"];
+  const EOPT = ["30 องศา", "45 องศา", "60 องศา", "90 องศา"];
+  const FACE = ["\u{1F61E}", "\u{1F641}", "\u{1F610}", "\u{1F642}", "\u{1F604}"];
+
+  function skin(el, ink, acc, font, rad, big){
+    el.style.cssText =
+      "font-family:'" + font + "',sans-serif;font-size:" + (big ? 19 : 16.5) + "px;" +
+      "background:#fff;color:" + ink + ";border:1px solid #E2E8E7;border-radius:" + rad + ";" +
+      "padding:20px 18px;--pi:" + ink + ";--pa:" + acc + ";--pl:#D9E1E0;--pm:#8899A0;" +
+      "--psel:" + acc + "1F;--ph:" + (big ? 62 : 52) + "px;";
+  }
+
+  function opts(list, rad, big, oSty, letters){
+    const inline = oSty === "ปุ่มเรียงแนวนอน";
+    const round  = oSty === "วงกลมแบบดั้งเดิม" || inline;
+    const mk = big ? 26 : 22, h = big ? 62 : 52;
+    let s = '<div class="pset' + (inline ? " wrap" : "") + '">';
+    list.forEach((o, i) => {
+      s += '<div class="po' + (i === 0 ? " sel" : "") + '" style="padding:' +
+        (big ? "14px 18px" : "11px 15px") + ";border-radius:" + (inline ? "999px" : rad) +
+        ";min-height:" + h + "px;" + (inline ? "" : "width:100%;") + '">' +
+        '<span class="pmark" style="width:' + mk + "px;height:" + mk + "px;border-radius:" +
+        (round ? "50%" : "6px") + '">' + (letters ? "กขคง"[i] : "") + "</span><span>" + o + "</span></div>";
+    });
+    return s + "</div>";
+  }
+
+  function paint(){
+    const ink = $("[name=colorInk]").value, acc = $("[name=colorAccent]").value;
+    const font = val("font") || "Sarabun";
+    const rad = { "เหลี่ยม":"2px", "โค้งพอดี":"10px", "โค้งมาก":"22px" }[val("radius")] || "10px";
+    const big = val("fontSize") === "ใหญ่พิเศษ";
+    const oSty = val("optStyle") || "การ์ดใหญ่เต็มบรรทัด";
+    const sSty = val("scaleStyle") || "แถบไล่เติมสี";
+
+    /* แบบสอบถาม */
+    const sv = $("#pvSurvey");
+    skin(sv, ink, acc, font, rad, big);
+    let s = '<div class="pq">ท่านพึงพอใจต่อการให้บริการเพียงใด</div>';
+    s += opts(SOPT, rad, big, oSty, false);
+    s += '<div class="pscale">';
+    for (let i = 1; i <= 5; i++){
+      const on = i <= 4;
+      let inner = String(i), ex = "";
+      if (sSty === "ดาว"){ inner = on ? "\u2605" : "\u2606"; if (on) ex = "color:" + acc + ";"; }
+      if (sSty === "หน้ายิ้ม") inner = FACE[i-1];
+      if (sSty === "แถบไล่เติมสี") ex = "--fh:" + (30 + i/5*70) + "%;";
+      if (sSty === "ตัวเลขเรียบ" && on) ex = "background:" + acc + "26;border-color:" + acc + ";";
+      s += '<button type="button" class="ps' + (on ? " f" : "") + '" style="border-radius:' +
+           rad + ";" + ex + '"><span>' + inner + "</span></button>";
+    }
+    s += '</div><div class="pends"><span>น้อยที่สุด</span><span>มากที่สุด</span></div>';
+    sv.innerHTML = s;
+
+    /* ข้อสอบ */
+    const ex = $("#pvExam");
+    skin(ex, ink, acc, font, rad, big);
+    const t = val("timer") === "จำกัดเวลา";
+    let e = '<div class="ptop"><span>ข้อ 3 จาก ' + (+$("#examCount").value || 20) + '</span>' +
+            (t ? '<span class="ptime">\u23F1 12:45</span>' : "<span>ไม่จำกัดเวลา</span>") + "</div>";
+    e += '<div class="pq">การจัดท่าถ่ายภาพรังสีทรวงอก ท่า Lateral ต้องหมุนลำตัวกี่องศา</div>';
+    e += opts(EOPT, rad, big, oSty, true);
+    ex.innerHTML = e;
+
+    $$(".pv .po").forEach(el => el.onclick = () => {
+      const p = el.closest(".pset");
+      p.querySelectorAll(".po").forEach(x => x.classList.remove("sel"));
+      el.classList.add("sel");
+    });
+  }
+
+  function collect(){
+    const d = {};
+    new FormData($("#brief")).forEach((v, k) => {
+      if (d[k] === undefined) d[k] = v;
+      else if (Array.isArray(d[k])) d[k].push(v);
+      else d[k] = [d[k], v];
+    });
+    d._addons = keys();
+    d._terms  = "แก้ไข/เพิ่มคำถาม ฟรี 3 ครั้ง หลังจากนั้นคิดค่าใช้จ่ายเพิ่ม · ราคาพื้นฐานรวมไม่เกิน 50 ข้อ";
+    d._filledAt = new Date().toISOString();
+    return d;
+  }
+
+  const COMMON = ["kind","purpose","who","tone","device","viewer","dashboard","account"];
+  const need = () => COMMON
+    .concat(isSurvey() ? ["collect","qcount"] : [])
+    .concat(isExam()   ? ["examUse","examCount","examTypes","examId","showResult"] : []);
+
+  const say = (t, bad) => {
+    const s = $("#say");
+    s.textContent = t;
+    s.style.color = bad ? "#B23A2E" : "#1E6E68";
+    s.style.fontWeight = "600";
+    setTimeout(() => { s.textContent = ""; }, 4000);
+  };
+
+  $("#dl").onclick = () => {
+    const d = collect();
+    if (!d.kind){ say("กรุณาเลือกประเภทงานก่อน", true); window.scrollTo({top:0,behavior:"smooth"}); return; }
+    const m = need().filter(k => !d[k]);
+    if (m.length){ say("ยังไม่ได้ตอบ " + m.length + " ข้อที่จำเป็น", true); return; }
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 2)], {type:"application/json"}));
+    a.download = "brief.json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+    say("ดาวน์โหลดแล้ว ส่งไฟล์นี้กลับมาได้เลย");
+  };
+
+  $("#cp").onclick = async () => {
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(collect(), null, 2));
+      say("คัดลอกแล้ว วางในแชทหรืออีเมลได้เลย");
+    } catch(e){ say("คัดลอกไม่สำเร็จ ใช้ปุ่มดาวน์โหลดแทน", true); }
+  };
+
+  branch(); scope(); paint();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>แบบทดสอบออนไลน์</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   ตั้งค่าทั้งหมดอยู่ในก้อนนี้ก้อนเดียว
+   ⚠ ห้ามใส่เฉลยในไฟล์นี้เด็ดขาด — เฉลยอยู่ใน Exam.gs ฝั่งเซิร์ฟเวอร์
+   ═══════════════════════════════════════════════════════════════ */
+const CONFIG = {
+
+  /* ── หัวเรื่อง ─────────────────────────────────────────────── */
+  examId:   "cpr-2569",
+  org:      "โรงพยาบาลโพนทราย",
+  title:    "แบบทดสอบความรู้ หลังการอบรม CPR",
+  subtitle: "ปีงบประมาณ 2569",
+
+  /* ── ปลายทาง ──────────────────────────────────────────────── */
+  demoMode: true,               // true = โหมดตัวอย่าง ไม่ส่งข้อมูลจริง ไม่บันทึกที่ไหน
+  endpoint: "",                 // URL ของ Apps Script (ดู Exam.gs)
+  token:    "CHANGE_ME",        // ต้องตรงกับใน Exam.gs
+
+  /* ── กติกาการสอบ ──────────────────────────────────────────── */
+  timeLimit:   30,              // นาที (0 = ไม่จำกัดเวลา)
+  passPercent: 60,              // เกณฑ์ผ่าน %
+  attemptsOnce: true,           // true = ทำได้ครั้งเดียวต่อเครื่อง
+  shuffleQuestions: true,       // สุ่มลำดับข้อ
+  shuffleOptions:   true,       // สุ่มลำดับตัวเลือก
+  confirmBeforeSubmit: true,    // ป๊อบอัพยืนยันก่อนส่ง
+  antiCheat:   true,            // จับการสลับแท็บ แล้วบันทึกไว้
+
+  // 'score'   แสดงคะแนนอย่างเดียว
+  // 'answers' แสดงคะแนน + เฉลยรายข้อ
+  // 'none'    ไม่แสดงผล ให้ผู้ดูแลดูในชีตเอง
+  showResult: "answers",
+
+  /* ── เกียรติบัตร ──────────────────────────────────────────── */
+  certificate: {
+    enabled: true,
+    heading: "เกียรติบัตรฉบับนี้ให้ไว้เพื่อแสดงว่า",
+    body:    "ได้ผ่านการทดสอบความรู้ หลักสูตรการช่วยฟื้นคืนชีพขั้นพื้นฐาน (CPR)",
+    signName: "นายแพทย์ผู้อำนวยการ",
+    signRole: "ผู้อำนวยการโรงพยาบาลโพนทราย"
+  },
+
+  /* ── ข้อมูลผู้เข้าสอบ ─────────────────────────────────────── */
+  identity: [
+    { id:"name", label:"ชื่อ–สกุล", required:true },
+    { id:"code", label:"รหัสพนักงาน", required:true },
+    { id:"dept", label:"หน่วยงาน / แผนก", required:true }
+  ],
+
+  /* ── ข้อสอบ ───────────────────────────────────────────────── */
+  /*
+     type: 'mc'    ปรนัย เลือกตอบเดียว   → options
+           'tf'    ถูก / ผิด
+           'multi' เลือกหลายคำตอบ        → options
+           'fill'  เติมคำ                → ตอบเป็นข้อความ
+
+     คะแนนข้อละ 1 เท่ากันทุกข้อ (ปรับได้ที่ score)
+     ⚠ ไม่มีช่อง answer — เฉลยอยู่ใน Exam.gs เท่านั้น
+  */
+  questions: [
+    { id:"q1", type:"mc", score:1,
+      text:"อัตราการกดหน้าอกในการทำ CPR ผู้ใหญ่ ที่ถูกต้องคือข้อใด",
+      options:["60–80 ครั้ง/นาที","80–100 ครั้ง/นาที","100–120 ครั้ง/นาที","120–140 ครั้ง/นาที"] },
+
+    { id:"q2", type:"mc", score:1,
+      text:"ความลึกของการกดหน้าอกในผู้ใหญ่ ควรลึกประมาณเท่าใด",
+      options:["2–3 เซนติเมตร","5–6 เซนติเมตร","7–8 เซนติเมตร","ลึกที่สุดเท่าที่ทำได้"] },
+
+    { id:"q3", type:"tf", score:1,
+      text:"ก่อนเริ่ม CPR ต้องตรวจสอบความปลอดภัยของสถานที่เกิดเหตุก่อนเสมอ" },
+
+    { id:"q4", type:"multi", score:1,
+      text:"ข้อใดเป็นสัญญาณที่บ่งบอกว่าผู้ป่วยหยุดหายใจ (ตอบได้มากกว่า 1 ข้อ)",
+      options:["ไม่ตอบสนองต่อการเรียก","หน้าอกไม่ขยับ","ผิวหนังเขียวคล้ำ","ชีพจรเต้นแรง"] },
+
+    { id:"q5", type:"fill", score:1,
+      text:"อัตราส่วนการกดหน้าอกต่อการช่วยหายใจในผู้ใหญ่ คือ ______ ต่อ 2",
+      placeholder:"ตอบเป็นตัวเลข" }
+  ]
+};
+</script>
+
+<style>
+  :root{
+    --ink:#12313A; --accent:#DFA23C; --jade:#1E6E68; --paper:#EFF3F2;
+    --line:#D3DCDA; --muted:#63797E; --danger:#B23A2E; --ok:#1E6E68;
+    --r:12px; --tap:54px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Sarabun",-apple-system,sans-serif;font-size:17px;line-height:1.6;
+       color:var(--ink);background:var(--paper)}
+  h1,h2,h3,.mono{font-family:"Bai Jamjuree","Sarabun",sans-serif}
+
+  .screen{display:none}
+  .screen.on{display:block}
+  .mid{max-width:640px;margin:0 auto;padding:26px 16px 120px}
+
+  /* หัวเรื่อง */
+  header{background:var(--ink);color:#fff;padding:26px 20px;position:relative}
+  header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;
+    background:linear-gradient(90deg,var(--accent) 0 30%,var(--jade) 30%)}
+  .eyebrow{font-family:"Bai Jamjuree";font-size:13px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:6px}
+  header h1{font-size:23px;line-height:1.35}
+  header p{color:#B7CBCF;font-size:15px;margin-top:5px}
+
+  /* กติกา */
+  .rules{background:#fff;border:1px solid var(--line);border-radius:var(--r);
+    padding:20px 18px;margin-bottom:16px}
+  .rules h2{font-size:17px;margin-bottom:12px}
+  .rule{display:flex;gap:12px;padding:9px 0;border-top:1px solid var(--line);font-size:16px}
+  .rule:first-of-type{border-top:none}
+  .rule b{flex:none;width:120px;color:var(--muted);font-weight:500}
+  .card{background:#fff;border:1px solid var(--line);border-radius:var(--r);
+    padding:20px 18px;margin-bottom:14px}
+  .card.err{border-color:var(--danger);box-shadow:0 0 0 3px rgba(178,58,46,.09)}
+  label.fl{display:block;font-weight:600;margin-bottom:7px}
+  input[type=text]{width:100%;min-height:var(--tap);padding:12px 14px;font:inherit;
+    border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+  input:focus{outline:none;border-color:var(--jade);box-shadow:0 0 0 3px rgba(30,110,104,.13)}
+
+  /* แถบสอบ */
+  .bar{position:sticky;top:0;z-index:30;background:var(--ink);color:#fff;
+    padding:11px 16px;display:flex;align-items:center;gap:14px}
+  .bar .n{font-size:14px;color:#B7CBCF}
+  .clock{margin-left:auto;font-family:"Bai Jamjuree";font-size:20px;font-weight:700;
+    color:var(--accent);font-variant-numeric:tabular-nums}
+  .clock.hot{color:#FF8A72;animation:tick 1s steps(2) infinite}
+  @keyframes tick{50%{opacity:.45}}
+  .prog{height:5px;background:#DCE4E2;position:sticky;top:47px;z-index:29}
+  .prog i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+
+  /* ข้อสอบ */
+  .q{background:#fff;border:1px solid var(--line);border-radius:var(--r);
+    padding:20px 18px;margin-bottom:14px}
+  .q.err{border-color:var(--danger);box-shadow:0 0 0 3px rgba(178,58,46,.09)}
+  .qh{display:flex;gap:11px;margin-bottom:14px}
+  .qn{flex:none;width:30px;height:30px;border-radius:8px;background:var(--ink);color:#fff;
+    font-family:"Bai Jamjuree";font-size:14px;font-weight:700;display:grid;place-items:center}
+  .qt{font-weight:600;line-height:1.55;padding-top:2px}
+  .opts{display:flex;flex-direction:column;gap:9px}
+  .opt{display:flex;align-items:center;gap:12px;min-height:var(--tap);padding:10px 15px;
+    border:1.5px solid var(--line);border-radius:10px;background:#fff;cursor:pointer;
+    line-height:1.45;transition:.14s}
+  .opt:hover{border-color:var(--jade)}
+  .opt input{position:absolute;opacity:0;width:1px;height:1px}
+  .mk{flex:none;width:28px;height:28px;border:2px solid var(--line);border-radius:8px;
+    display:grid;place-items:center;font-family:"Bai Jamjuree";font-size:14px;
+    font-weight:700;color:var(--muted);transition:.14s}
+  .opt.multi .mk{border-radius:8px}
+  .opt.on{border-color:var(--jade);background:#EEF5F4}
+  .opt.on .mk{border-color:var(--jade);background:var(--jade);color:#fff}
+  .opt:focus-within{outline:3px solid var(--jade);outline-offset:2px}
+
+  /* ปุ่มส่ง */
+  .foot{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(255,255,255,.95);
+    backdrop-filter:blur(8px);border-top:1px solid var(--line);
+    padding:13px 16px calc(13px + env(safe-area-inset-bottom))}
+  .fin{max-width:640px;margin:0 auto}
+  .btn{width:100%;min-height:58px;border:none;border-radius:12px;cursor:pointer;
+    font-family:"Bai Jamjuree";font-size:18px;font-weight:600}
+  .btn.p{background:var(--ink);color:#fff}
+  .btn.a{background:var(--accent);color:#2A1E08}
+  .btn.s{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+  #note{font-size:14px;text-align:center;margin-top:8px;color:var(--muted);min-height:20px}
+  #note.bad{color:var(--danger);font-weight:600}
+
+  /* ป๊อบอัพ */
+  .mask{position:fixed;inset:0;z-index:60;background:rgba(10,30,36,.62);
+    display:none;place-items:center;padding:20px}
+  .mask.on{display:grid}
+  .modal{background:#fff;border-radius:16px;padding:26px 22px;max-width:400px;width:100%;
+    text-align:center}
+  .modal h3{font-size:21px;margin-bottom:8px}
+  .modal p{color:var(--muted);font-size:16px;line-height:1.6;margin-bottom:20px}
+  .modal .rowb{display:grid;gap:9px}
+
+  /* ผลสอบ */
+  .ring{width:150px;height:150px;margin:0 auto 18px;position:relative}
+  .ring svg{transform:rotate(-90deg)}
+  .ring .val{position:absolute;inset:0;display:grid;place-items:center;
+    font-family:"Bai Jamjuree";font-size:34px;font-weight:700}
+  .verdict{text-align:center;margin-bottom:22px}
+  .verdict h2{font-size:27px;margin-bottom:5px}
+  .verdict p{color:var(--muted)}
+  .pill{display:inline-block;padding:5px 15px;border-radius:20px;font-weight:700;
+    font-size:14px;margin-bottom:12px}
+  .pill.ok{background:#E4F0EE;color:var(--ok)}
+  .pill.no{background:#F7E6E3;color:var(--danger)}
+  .rev{background:#fff;border:1px solid var(--line);border-radius:var(--r);
+    padding:16px 18px;margin-bottom:11px}
+  .rev.r{border-left:4px solid var(--ok)}
+  .rev.w{border-left:4px solid var(--danger)}
+  .rev .t{font-weight:600;margin-bottom:8px;line-height:1.5}
+  .rev .l{font-size:15px;color:var(--muted);margin-top:4px}
+  .rev .l b{color:var(--ink);font-weight:600}
+  .rev .l.ok b{color:var(--ok)}
+  .rev .l.no b{color:var(--danger)}
+
+  /* เกียรติบัตร */
+  .cert{display:none;background:#fff;padding:44px 40px;border:14px double var(--ink);
+    text-align:center;margin-bottom:14px}
+  .cert.on{display:block}
+  .cert .co{font-family:"Bai Jamjuree";font-size:14px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:20px}
+  .cert h2{font-size:29px;margin-bottom:22px;color:var(--ink)}
+  .cert .lead{font-size:16px;color:var(--muted);margin-bottom:8px}
+  .cert .nm{font-family:"Bai Jamjuree";font-size:31px;font-weight:700;
+    padding:8px 0 12px;border-bottom:2px solid var(--accent);
+    display:inline-block;margin-bottom:20px;min-width:60%}
+  .cert .bd{font-size:17px;line-height:1.75;max-width:440px;margin:0 auto 26px}
+  .cert .sc{display:inline-block;padding:6px 18px;border:1.5px solid var(--jade);
+    border-radius:20px;color:var(--jade);font-weight:600;font-size:15px;margin-bottom:30px}
+  .cert .sg{margin-top:34px;font-size:15px;line-height:1.7}
+  .cert .sg .ln{width:200px;border-top:1px solid var(--ink);margin:0 auto 8px}
+  .cert .sg b{display:block;font-weight:600}
+  .cert .sg i{font-style:normal;color:var(--muted);font-size:14px}
+  .cert .dt{font-size:14px;color:var(--muted);margin-top:14px}
+
+  .hidden{display:none !important}
+  @media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important}}
+
+  @media print{
+    body{background:#fff}
+    body * {visibility:hidden}
+    .cert, .cert *{visibility:visible}
+    .cert{display:block;position:absolute;left:0;top:0;width:100%;border-width:10px}
+    @page{size:A4 landscape;margin:12mm}
+  }
+</style>
+</head>
+<body>
+
+<!-- ── 1. หน้าเริ่ม ─────────────────────────────────────────── -->
+<section id="s1" class="screen on">
+  <header>
+    <div class="eyebrow" id="h-org"></div>
+    <h1 id="h-title"></h1>
+    <p id="h-sub"></p>
+  </header>
+  <div class="mid">
+    <div class="rules">
+      <h2>กติกาการทำแบบทดสอบ</h2>
+      <div id="rules"></div>
+    </div>
+    <div class="card">
+      <h2 style="font-size:17px;margin-bottom:14px">ข้อมูลผู้เข้าสอบ</h2>
+      <div id="idf"></div>
+    </div>
+  </div>
+  <div class="foot"><div class="fin">
+    <button class="btn p" id="start">เริ่มทำแบบทดสอบ</button>
+    <div id="n1"></div>
+  </div></div>
+</section>
+
+<!-- ── 2. หน้าสอบ ───────────────────────────────────────────── -->
+<section id="s2" class="screen">
+  <div class="bar">
+    <span class="n" id="who"></span>
+    <span class="clock" id="clock">—</span>
+  </div>
+  <div class="prog"><i id="pg"></i></div>
+  <div class="mid" id="qs"></div>
+  <div class="foot"><div class="fin">
+    <button class="btn a" id="send">ส่งคำตอบ</button>
+    <div id="note"></div>
+  </div></div>
+</section>
+
+<!-- ── 3. หน้าผล ────────────────────────────────────────────── -->
+<section id="s3" class="screen">
+  <div class="mid" style="padding-bottom:40px">
+    <div id="cert" class="cert"></div>
+    <div id="result"></div>
+  </div>
+</section>
+
+<!-- ── ป๊อบอัพ ──────────────────────────────────────────────── -->
+<div class="mask" id="mask">
+  <div class="modal">
+    <h3 id="m-t"></h3>
+    <p id="m-b"></p>
+    <div class="rowb">
+      <button class="btn a" id="m-ok"></button>
+      <button class="btn s" id="m-no">ย้อนกลับ</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  const C = CONFIG, $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const LET = ["ก","ข","ค","ง","จ","ฉ"];
+
+  const me = {};            // ข้อมูลผู้สอบ
+  const ans = {};           // คำตอบ { qid: value }
+  let order = [], optOrder = {}, left = 0, timer = null, blur = 0, sent = false;
+
+  /* หัวเรื่อง */
+  document.title = C.title;
+  $("h-org").textContent   = C.org;
+  $("h-title").textContent = C.title;
+  $("h-sub").textContent   = C.subtitle || "";
+
+  /* กติกา */
+  const total = C.questions.reduce((s,q) => s + (q.score || 1), 0);
+  const rules = [
+    ["จำนวนข้อ", C.questions.length + " ข้อ (" + total + " คะแนน)"],
+    ["เวลา", C.timeLimit ? C.timeLimit + " นาที หมดเวลาระบบจะส่งอัตโนมัติ" : "ไม่จำกัดเวลา"],
+    ["เกณฑ์ผ่าน", C.passPercent + "%"],
+    ["จำนวนครั้ง", C.attemptsOnce ? "ทำได้ครั้งเดียว ส่งแล้วแก้ไม่ได้" : "ทำซ้ำได้ เก็บคะแนนดีที่สุด"]
+  ];
+  if (C.antiCheat) rules.push(["การสลับหน้าจอ", "ระบบบันทึกไว้ กรุณาอย่าออกจากหน้านี้ระหว่างสอบ"]);
+  if (C.certificate && C.certificate.enabled)
+    rules.push(["เกียรติบัตร", "ดาวน์โหลดได้ทันทีเมื่อสอบผ่าน"]);
+  $("rules").innerHTML = rules
+    .map(r => '<div class="rule"><b>' + r[0] + "</b><span>" + r[1] + "</span></div>").join("");
+
+  /* ฟอร์มผู้สอบ */
+  $("idf").innerHTML = C.identity.map(f =>
+    '<div class="card" style="border:none;padding:0 0 14px;margin:0">' +
+    '<label class="fl" for="i_' + f.id + '">' + esc(f.label) +
+      (f.required ? ' <span style="color:var(--danger)">*</span>' : "") + "</label>" +
+    '<input type="text" id="i_' + f.id + '" autocomplete="off"></div>').join("");
+
+  /* ── เริ่มสอบ ── */
+  if (C.demoMode){
+    const b = document.createElement("div");
+    b.textContent = "โหมดตัวอย่าง · กรอกทดสอบได้ตามสบาย ข้อมูลไม่ถูกบันทึกที่ไหน";
+    b.style.cssText = "background:#DFA23C;color:#2A1E08;text-align:center;font-weight:600;" +
+                      "font-size:14.5px;padding:9px 14px;line-height:1.45";
+    document.body.insertBefore(b, document.body.firstChild);
+  }
+
+  const seen = "exam_" + C.examId;
+  if (C.attemptsOnce && !C.demoMode) {
+    try { if (localStorage.getItem(seen)) lock(); } catch(e){}
+  }
+  function lock(){
+    go("s3");
+    $("result").innerHTML =
+      '<div class="card" style="text-align:center">' +
+      "<h2 style='font-size:21px;margin-bottom:8px'>ท่านทำแบบทดสอบนี้ไปแล้ว</h2>" +
+      '<p style="color:var(--muted)">แบบทดสอบนี้ทำได้ครั้งเดียว หากมีข้อสงสัยกรุณาติดต่อผู้ดูแล</p></div>';
+  }
+
+  $("start").onclick = () => {
+    let bad = false;
+    C.identity.forEach(f => {
+      const el = $("i_" + f.id);
+      const v = el.value.trim();
+      me[f.id] = v;
+      const box = el.closest(".card");
+      const miss = f.required && !v;
+      box.style.outline = miss ? "2px solid var(--danger)" : "none";
+      if (miss) bad = true;
+    });
+    if (bad){ $("n1").textContent = "กรุณากรอกข้อมูลให้ครบ"; $("n1").className = "bad"; return; }
+
+    order = C.questions.map((q,i) => i);
+    if (C.shuffleQuestions) shuffle(order);
+    order.forEach(i => {
+      const q = C.questions[i];
+      if (q.options){
+        const o = q.options.map((_,k) => k);
+        if (C.shuffleOptions) shuffle(o);
+        optOrder[q.id] = o;
+      }
+    });
+
+    build();
+    $("who").textContent = me[C.identity[0].id];
+    go("s2");
+    window.scrollTo(0,0);
+    if (C.timeLimit) startClock();
+    if (C.antiCheat) watch();
+  };
+
+  const shuffle = a => { for (let i=a.length-1;i>0;i--){ const j=(Math.random()*(i+1))|0; [a[i],a[j]]=[a[j],a[i]]; } };
+  const go = id => { ["s1","s2","s3"].forEach(s => $(s).classList.toggle("on", s === id)); };
+
+  /* ── สร้างข้อสอบ ── */
+  function build(){
+    const box = $("qs");
+    box.innerHTML = "";
+    order.forEach((idx, n) => {
+      const q = C.questions[idx];
+      const c = document.createElement("div");
+      c.className = "q";
+      c.id = "c_" + q.id;
+      c.innerHTML = '<div class="qh"><span class="qn">' + (n+1) + '</span>' +
+                    '<div class="qt">' + esc(q.text) + "</div></div>";
+      c.appendChild(field(q));
+      box.appendChild(c);
+    });
+    tick();
+  }
+
+  function field(q){
+    if (q.type === "fill"){
+      const i = document.createElement("input");
+      i.type = "text";
+      i.placeholder = q.placeholder || "พิมพ์คำตอบ";
+      i.setAttribute("aria-label", q.text);
+      i.oninput = () => { ans[q.id] = i.value.trim(); ok(q.id); tick(); };
+      return i;
+    }
+
+    const list = q.type === "tf" ? ["ถูก", "ผิด"]
+               : optOrder[q.id].map(k => q.options[k]);
+    const multi = q.type === "multi";
+    const w = document.createElement("div");
+    w.className = "opts";
+    w.setAttribute("role", multi ? "group" : "radiogroup");
+    w.setAttribute("aria-label", q.text);
+
+    list.forEach((o, i) => {
+      const lab = document.createElement("label");
+      lab.className = "opt" + (multi ? " multi" : "");
+      lab.innerHTML = '<input type="' + (multi ? "checkbox" : "radio") + '" name="' + q.id +
+        '" value="' + esc(o) + '"><span class="mk">' + (multi ? "\u2713" : LET[i]) +
+        "</span><span>" + esc(o) + "</span>";
+      const inp = lab.querySelector("input");
+      inp.onchange = () => {
+        if (multi){
+          ans[q.id] = [...w.querySelectorAll("input:checked")].map(x => x.value);
+          lab.classList.toggle("on", inp.checked);
+        } else {
+          ans[q.id] = inp.value;
+          [...w.children].forEach(x => x.classList.remove("on"));
+          lab.classList.add("on");
+        }
+        ok(q.id); tick();
+      };
+      w.appendChild(lab);
+    });
+    return w;
+  }
+
+  const done = q => {
+    const v = ans[q.id];
+    return Array.isArray(v) ? v.length > 0 : (v !== undefined && v !== "");
+  };
+  const ok = id => $("c_" + id).classList.remove("err");
+  const tick = () => {
+    const n = C.questions.filter(done).length;
+    $("pg").style.width = (n / C.questions.length * 100) + "%";
+  };
+
+  /* ── นาฬิกา ── */
+  function startClock(){
+    left = C.timeLimit * 60;
+    show();
+    timer = setInterval(() => {
+      left--;
+      show();
+      if (left <= 0){ clearInterval(timer); submit(true); }
+    }, 1000);
+  }
+  function show(){
+    const m = Math.floor(left/60), s = left % 60;
+    const el = $("clock");
+    el.textContent = m + ":" + String(s).padStart(2,"0");
+    el.classList.toggle("hot", left <= 60);
+  }
+
+  /* ── จับการสลับแท็บ ── */
+  function watch(){
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden && !sent) blur++;
+    });
+    document.addEventListener("contextmenu", e => e.preventDefault());
+    document.addEventListener("copy", e => e.preventDefault());
+  }
+
+  /* ── ป๊อบอัพ ── */
+  const modal = (t, b, okTxt, fn) => {
+    $("m-t").textContent = t;
+    $("m-b").textContent = b;
+    $("m-ok").textContent = okTxt;
+    $("mask").classList.add("on");
+    $("m-ok").onclick = () => { $("mask").classList.remove("on"); fn(); };
+    $("m-no").onclick = () => $("mask").classList.remove("on");
+  };
+
+  $("send").onclick = () => {
+    const miss = C.questions.filter(q => !done(q));
+    if (miss.length){
+      miss.forEach(q => $("c_" + q.id).classList.add("err"));
+      $("note").className = "bad";
+      $("note").textContent = "ยังไม่ได้ตอบ " + miss.length + " ข้อ";
+      $("c_" + miss[0].id).scrollIntoView({behavior:"smooth", block:"center"});
+      return;
+    }
+    if (C.confirmBeforeSubmit)
+      modal("ยืนยันการส่งคำตอบ", "ส่งแล้วจะแก้ไขไม่ได้ ตรวจทานเรียบร้อยแล้วใช่หรือไม่",
+            "ยืนยัน ส่งคำตอบ", () => submit(false));
+    else submit(false);
+  };
+
+  /* ── ส่ง ── */
+  async function submit(auto){
+    if (sent) return;
+    sent = true;
+    if (timer) clearInterval(timer);
+    $("mask").classList.remove("on");
+
+    const btn = $("send");
+    btn.disabled = true;
+    btn.textContent = auto ? "หมดเวลา กำลังส่ง…" : "กำลังส่ง…";
+
+    const payload = {
+      token: C.token,
+      examId: C.examId,
+      identity: me,
+      answers: ans,
+      meta: {
+        used: C.timeLimit ? (C.timeLimit*60 - Math.max(left,0)) : null,
+        blur: blur,
+        auto: !!auto
+      }
+    };
+
+    /* โหมดตัวอย่าง: ไม่ยิงข้อมูลออกไปไหน จำลองผลให้ดูหน้าตาเท่านั้น */
+    if (C.demoMode){
+      await new Promise(r => setTimeout(r, 700));
+      const detail = {};
+      C.questions.forEach((q,i) => {
+        detail[q.id] = { correct: i !== 0, answer: "(โหมดตัวอย่าง)",
+                         note: "โหมดตัวอย่างไม่มีการตรวจจริง" };
+      });
+      const sc = total - 1;
+      render({ ok:true, score:sc, total:total,
+               percent: Math.round(sc/total*100), passed:true, detail:detail });
+      return;
+    }
+
+    try {
+      const r = await fetch(C.endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      });
+      const res = await r.json();
+      if (!res.ok) throw new Error(res.error || "ส่งไม่สำเร็จ");
+      try { if (C.attemptsOnce) localStorage.setItem(seen, "1"); } catch(e){}
+      render(res);
+    } catch (err) {
+      sent = false;
+      btn.disabled = false;
+      btn.textContent = "ลองส่งอีกครั้ง";
+      if (C.timeLimit && left > 0) timer = setInterval(() => { left--; show(); if (left<=0){clearInterval(timer); submit(true);} }, 1000);
+      $("note").className = "bad";
+      $("note").textContent = "ส่งไม่สำเร็จ ตรวจสัญญาณอินเทอร์เน็ตแล้วกดส่งใหม่";
+    }
+  }
+
+  /* ── หน้าผล ── */
+  function render(res){
+    go("s3");
+    window.scrollTo(0,0);
+    const box = $("result");
+
+    if (C.showResult === "none"){
+      box.innerHTML = '<div class="card" style="text-align:center">' +
+        "<h2 style='font-size:22px;margin-bottom:8px'>ส่งคำตอบเรียบร้อยแล้ว</h2>" +
+        '<p style="color:var(--muted)">ผลการทดสอบจะแจ้งให้ทราบภายหลัง</p></div>';
+      return;
+    }
+
+    const pct = res.percent, pass = res.passed;
+    const col = pass ? "var(--ok)" : "var(--danger)";
+    const dash = 2 * Math.PI * 64;
+
+    let h = '<div class="card">' +
+      '<div class="ring"><svg width="150" height="150">' +
+      '<circle cx="75" cy="75" r="64" fill="none" stroke="#E3EAE9" stroke-width="11"/>' +
+      '<circle cx="75" cy="75" r="64" fill="none" stroke="' + col + '" stroke-width="11" ' +
+      'stroke-linecap="round" stroke-dasharray="' + dash + '" ' +
+      'stroke-dashoffset="' + (dash * (1 - pct/100)) + '"/></svg>' +
+      '<div class="val" style="color:' + col + '">' + pct + "%</div></div>" +
+      '<div class="verdict">' +
+      '<span class="pill ' + (pass ? "ok" : "no") + '">' + (pass ? "ผ่านเกณฑ์" : "ไม่ผ่านเกณฑ์") + "</span>" +
+      "<h2>" + res.score + " / " + res.total + " คะแนน</h2>" +
+      "<p>เกณฑ์ผ่าน " + C.passPercent + "% · " + esc(me[C.identity[0].id]) + "</p></div>";
+
+    if (pass && C.certificate && C.certificate.enabled)
+      h += '<button class="btn a" id="pc" style="margin-bottom:9px">พิมพ์ / บันทึกเกียรติบัตร</button>';
+    h += "</div>";
+
+    if (C.showResult === "answers" && res.detail){
+      h += '<h3 style="margin:22px 0 12px;font-size:18px">เฉลยรายข้อ</h3>';
+      order.forEach((idx, n) => {
+        const q = C.questions[idx];
+        const d = res.detail[q.id];
+        if (!d) return;
+        const mine = Array.isArray(ans[q.id]) ? ans[q.id].join(", ") : ans[q.id];
+        h += '<div class="rev ' + (d.correct ? "r" : "w") + '">' +
+             '<div class="t">' + (n+1) + ". " + esc(q.text) + "</div>" +
+             '<div class="l ' + (d.correct ? "ok" : "no") + '">คำตอบของท่าน: <b>' + esc(mine) + "</b></div>" +
+             (d.correct ? "" : '<div class="l ok">คำตอบที่ถูก: <b>' + esc(d.answer) + "</b></div>") +
+             (d.note ? '<div class="l">' + esc(d.note) + "</div>" : "") + "</div>";
+      });
+    }
+
+    box.innerHTML = h;
+
+    if (pass && C.certificate && C.certificate.enabled){
+      buildCert(res);
+      $("pc").onclick = () => window.print();
+    }
+  }
+
+  function buildCert(res){
+    const cf = C.certificate;
+    const d = new Date();
+    const th = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน",
+                "กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
+    const date = d.getDate() + " " + th[d.getMonth()] + " พ.ศ. " + (d.getFullYear() + 543);
+
+    $("cert").className = "cert on";
+    $("cert").innerHTML =
+      '<div class="co">' + esc(C.org) + "</div>" +
+      "<h2>เกียรติบัตรฉบับนี้ให้ไว้เพื่อแสดงว่า</h2>" +
+      '<div class="lead">' + esc(cf.heading || "") + "</div>" +
+      '<div class="nm">' + esc(me[C.identity[0].id]) + "</div>" +
+      '<div class="bd">' + esc(cf.body) + "</div>" +
+      '<div class="sc">ได้คะแนน ' + res.score + " จาก " + res.total + " คะแนน (" + res.percent + "%)</div>" +
+      '<div class="dt">ให้ไว้ ณ วันที่ ' + date + "</div>" +
+      '<div class="sg"><div class="ln"></div><b>' + esc(cf.signName) + "</b>" +
+      "<i>" + esc(cf.signRole) + "</i></div>";
+  }
+})();
+</script>
+</body>
+</html>

@@ -6,6 +6,7 @@
 <title>แบบฟอร์มรับความต้องการ · เว็บไซต์ แบบสอบถาม ข้อสอบออนไลน์</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;600&family=Sarabun:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -165,7 +166,20 @@
   .terms b{color:var(--accent);display:block;margin-bottom:3px;font-size:13px}
   .terms u{color:#fff;text-decoration:none;font-weight:700}
 
-  .acts{margin-top:14px;display:grid;gap:9px}
+  .acts{margin-top:14px;display:grid;gap:10px}
+  .gbox{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px}
+  .gbox p{font-size:13px;color:var(--muted);line-height:1.5;margin-top:9px}
+  #gbtn{display:flex;justify-content:center;min-height:44px}
+  .who{display:flex;align-items:center;gap:10px;background:#EEF5F4;
+    border:1.5px solid var(--jade);border-radius:12px;padding:11px 13px}
+  .who .av{width:34px;height:34px;border-radius:50%;background:var(--jade);color:#fff;
+    display:grid;place-items:center;font-weight:700;flex:none;font-family:"Bai Jamjuree"}
+  .who .txt{flex:1;min-width:0;line-height:1.35}
+  .who b{display:block;font-size:14.5px}
+  .who span{display:block;font-size:12.5px;color:var(--muted);overflow:hidden;
+    text-overflow:ellipsis;white-space:nowrap}
+  .who button{border:none;background:none;color:var(--muted);cursor:pointer;
+    font:inherit;font-size:12.5px;text-decoration:underline;flex:none;padding:4px}
   .btn{min-height:52px;border-radius:11px;border:none;cursor:pointer;
     font-family:"Bai Jamjuree";font-size:16px;font-weight:600}
   .btn.p{background:var(--accent);color:#2A1E08}
@@ -717,14 +731,33 @@
     </div>
   </div>
   <div class="acts">
-    <button type="button" class="btn p" id="dl">ดาวน์โหลดไฟล์ส่งกลับ</button>
-    <button type="button" class="btn s" id="cp">คัดลอกเป็นข้อความ</button>
+    <div class="gbox" id="gbox">
+      <div id="gbtn"></div>
+      <p>ลงชื่อเข้าใช้ด้วยบัญชี Google เพื่อยืนยันตัวตน ระบบจะใช้เพียงชื่อและอีเมลของท่านเท่านั้น</p>
+    </div>
+    <div class="who" id="who" hidden>
+      <span class="av" id="w-av"></span>
+      <span class="txt"><b id="w-name"></b><span id="w-mail"></span></span>
+      <button type="button" id="w-out">เปลี่ยนบัญชี</button>
+    </div>
+    <button type="button" class="btn p" id="send" disabled>ส่งความต้องการ</button>
     <div id="say"></div>
   </div>
 </aside>
 </div>
 
 <script>
+/* ═══ ตั้งค่าการส่ง ═══════════════════════════════════════════
+   ENDPOINT   URL ของ Apps Script (ดู Brief.gs)
+   CLIENT_ID  OAuth Client ID จาก Google Cloud Console
+   REQUIRE_LOGIN  false = ให้กรอกอีเมลเองแทนการล็อกอิน
+   ═══════════════════════════════════════════════════════════ */
+const SEND = {
+  ENDPOINT:      "https://script.google.com/macros/s/AKfycbwmKbt4VqGFGAu6hDmou0X888iqKj2lrTciUklcHBeaeuHO1j3eIX0A3Q75ctrtPdfA/exec",
+  CLIENT_ID:     "958867802716-tmv1baht1cdv26qsvfo7kvjd81uf6fiu.apps.googleusercontent.com",
+  REQUIRE_LOGIN: true
+};
+
 (function(){
   "use strict";
   const $  = s => document.querySelector(s);
@@ -972,29 +1005,155 @@
     setTimeout(() => { s.textContent = ""; }, 4000);
   };
 
-  $("#dl").onclick = () => {
-    const d = collect();
-    if (!kinds().length){
-      say("กรุณาเลือกประเภทงานก่อน", true);
-      window.scrollTo({top:0, behavior:"smooth"});
+  /* ═══ ล็อกอิน Google แล้วส่งความต้องการทางอีเมล ═══ */
+  let USER = null;                       // { name, email, token }
+
+  function signedIn(u){
+    USER = u;
+    $("#gbox").hidden = true;
+    $("#who").hidden  = false;
+    $("#w-name").textContent = u.name || "ผู้ใช้ Google";
+    $("#w-mail").textContent = u.email;
+    $("#w-av").textContent   = (u.name || u.email).trim().charAt(0).toUpperCase();
+    $("#send").disabled = false;
+  }
+
+  function signedOut(){
+    USER = null;
+    $("#gbox").hidden = false;
+    $("#who").hidden  = true;
+    $("#send").disabled = SEND.REQUIRE_LOGIN;
+  }
+
+  $("#w-out").onclick = () => {
+    try { google.accounts.id.disableAutoSelect(); } catch(e){}
+    signedOut();
+  };
+
+  /* Google Identity Services เรียกกลับมาที่นี่พร้อม JWT */
+  window.onGoogleCredential = res => {
+    try {
+      const body = JSON.parse(decodeURIComponent(
+        atob(res.credential.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))
+          .split("").map(c => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2)).join("")
+      ));
+      signedIn({ name: body.name, email: body.email, token: res.credential });
+    } catch(e){
+      say("อ่านข้อมูลบัญชีไม่สำเร็จ กรุณาลองใหม่", true);
+    }
+  };
+
+  window.addEventListener("load", () => {
+    if (!SEND.CLIENT_ID || !window.google || !google.accounts){
+      // ยังไม่ได้ตั้งค่า หรือโหลดสคริปต์ Google ไม่ได้ → ไม่ล็อกหน้าไว้
+      $("#gbox").innerHTML =
+        '<p style="color:#B2703A;font-weight:600">ยังไม่ได้ตั้งค่าการล็อกอิน ' +
+        'ท่านยังส่งความต้องการได้ตามปกติ</p>';
+      $("#send").disabled = false;
       return;
     }
-    const m = need().filter(k => !d[k]);
-    if (m.length){ say("ยังไม่ได้ตอบ " + m.length + " ข้อที่จำเป็น", true); return; }
+    google.accounts.id.initialize({
+      client_id: SEND.CLIENT_ID,
+      callback: window.onGoogleCredential
+    });
+    google.accounts.id.renderButton($("#gbtn"), {
+      theme: "outline", size: "large", width: 260,
+      text: "signin_with", locale: "th"
+    });
+  });
+
+  /* ── ส่ง ── */
+  const fallback = d => {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 2)], {type:"application/json"}));
     a.download = "brief.json";
     a.click();
     URL.revokeObjectURL(a.href);
-    say("ดาวน์โหลดแล้ว ส่งไฟล์นี้กลับมาได้เลย");
   };
 
-  $("#cp").onclick = async () => {
+  $("#send").onclick = async () => {
+    const d = collect();
+
+    if (!kinds().length){
+      say("กรุณาเลือกประเภทงานก่อน", true);
+      window.scrollTo({ top:0, behavior:"smooth" });
+      return;
+    }
+    const m = need().filter(k => !d[k]);
+    if (m.length){ say("ยังไม่ได้ตอบ " + m.length + " ข้อที่จำเป็น", true); return; }
+
+    if (SEND.REQUIRE_LOGIN && SEND.CLIENT_ID && !USER){
+      say("กรุณาลงชื่อเข้าใช้ด้วยบัญชี Google ก่อน", true);
+      return;
+    }
+
+    const btn = $("#send");
+    btn.disabled = true;
+    btn.textContent = "กำลังส่ง…";
+
+    if (!SEND.ENDPOINT){
+      // ยังไม่ได้ต่อหลังบ้าน → ให้ดาวน์โหลดไฟล์แทน จะได้ไม่เสียของที่กรอกมา
+      fallback(d);
+      btn.disabled = false;
+      btn.textContent = "ส่งความต้องการ";
+      say("ยังไม่ได้ตั้งค่าการส่ง จึงดาวน์โหลดไฟล์ให้แทน", true);
+      return;
+    }
+
     try {
-      await navigator.clipboard.writeText(JSON.stringify(collect(), null, 2));
-      say("คัดลอกแล้ว วางในแชทหรืออีเมลได้เลย");
-    } catch(e){ say("คัดลอกไม่สำเร็จ ใช้ปุ่มดาวน์โหลดแทน", true); }
+      const r = await fetch(SEND.ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({
+          idToken: USER ? USER.token : "",
+          brief: d
+        })
+      });
+      const res = await r.json();
+      if (!res.ok) throw new Error(res.error || "ส่งไม่สำเร็จ");
+
+      $("#brief").hidden = true;
+      $("aside").innerHTML =
+        '<div class="panel" style="text-align:center">' +
+        '<h3 style="color:var(--accent)">ส่งเรียบร้อยแล้ว</h3>' +
+        '<p style="margin:10px 0 0">ได้รับความต้องการของท่านแล้ว ' +
+        'จะติดต่อกลับทางอีเมล ' + (USER ? USER.email : "") + ' ภายใน 1–2 วันทำการ</p></div>';
+      window.scrollTo({ top:0, behavior:"smooth" });
+
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = "ลองส่งอีกครั้ง";
+      say("ส่งไม่สำเร็จ ระบบดาวน์โหลดไฟล์ให้แทน กรุณาส่งไฟล์นี้มาทางไลน์", true);
+      fallback(d);       // ทางหนีไฟ: อย่างน้อยลูกค้าไม่เสียของที่กรอกมาทั้งหมด
+    }
   };
+
+  /* รับค่าประเภทงานจากปุ่มในหน้ารวมตัวอย่าง เช่น brief.html?kind=เว็บไซต์
+     ลูกค้าจะได้ไม่ต้องเลือกซ้ำสองรอบ */
+  (function prefill(){
+    const want = new URLSearchParams(location.search).getAll("kind")
+      .flatMap(v => v.split(","))
+      .map(v => v.trim())
+      .filter(Boolean);
+    if (!want.length) return;
+
+    let hit = false;
+    $$('[name="kind"]').forEach(i => {
+      if (want.indexOf(i.value) !== -1){
+        i.checked = true;
+        i.closest(".chip").classList.add("on");
+        hit = true;
+      }
+    });
+    if (!hit) return;
+
+    branch(); scope(); paint();
+    // เลื่อนไปที่คำถามถัดไป ไม่ต้องให้ลูกค้าหาเอง
+    requestAnimationFrame(() => {
+      const next = document.querySelectorAll("fieldset")[1];
+      if (next) next.scrollIntoView({ behavior:"smooth", block:"start" });
+    });
+  })();
 
   branch(); scope(); paint();
 })();

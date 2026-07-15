@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบกรองข้อมูลผู้ใช้บริการ</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root {
+    --navy: #1B2A4A;
+    --navy-light: #253660;
+    --teal: #2EC4B6;
+    --teal-dim: #1a8f86;
+    --amber: #FFB703;
+    --cream: #F8F7F2;
+    --slate: #6B7A99;
+    --border: #D8DCE8;
+    --white: #FFFFFF;
+    --red: #E63946;
+    --green: #2DC653;
+    --shadow: 0 2px 12px rgba(27,42,74,0.10);
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Sarabun', sans-serif;
+    background: var(--cream);
+    color: var(--navy);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--navy);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  }
+  header .logo {
+    width: 38px; height: 38px;
+    background: var(--teal);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  header h1 { color: var(--white); font-size: 1.15rem; font-weight: 600; }
+  header span { color: var(--slate); font-size: 0.85rem; margin-left: 4px; }
+
+  /* LAYOUT */
+  .container { max-width: 1200px; margin: 0 auto; padding: 28px 20px; }
+
+  /* UPLOAD ZONE */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    background: var(--white);
+    padding: 48px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+  }
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--teal); background: #edfaf9; }
+  .upload-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .upload-icon { font-size: 2.8rem; margin-bottom: 10px; }
+  .upload-zone p { color: var(--slate); font-size: 0.95rem; }
+  .upload-zone strong { color: var(--navy); }
+
+  /* COLUMN MAPPING */
+  #mappingSection { display: none; }
+  .card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 22px 26px;
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--slate);
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-title::before { content: ''; width: 4px; height: 16px; background: var(--teal); border-radius: 2px; display: block; }
+
+  .mapping-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+  .mapping-item label { font-size: 0.85rem; font-weight: 500; color: var(--navy); display: block; margin-bottom: 6px; }
+  .mapping-item select, .mapping-item input {
+    width: 100%; padding: 9px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    font-family: 'Sarabun', sans-serif;
+    font-size: 0.92rem;
+    color: var(--navy);
+    background: var(--cream);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .mapping-item select:focus, .mapping-item input:focus { border-color: var(--teal); }
+
+  /* FILTER SECTION */
+  #filterSection { display: none; }
+  .filter-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; align-items: end; }
+  .filter-item label { font-size: 0.85rem; font-weight: 500; color: var(--navy); display: block; margin-bottom: 6px; }
+  .filter-item select, .filter-item input {
+    width: 100%; padding: 9px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    font-family: 'Sarabun', sans-serif;
+    font-size: 0.92rem;
+    color: var(--navy);
+    background: var(--white);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .filter-item select:focus, .filter-item input:focus { border-color: var(--teal); }
+
+  .btn {
+    padding: 10px 22px;
+    border: none; border-radius: 7px;
+    font-family: 'Sarabun', sans-serif;
+    font-size: 0.95rem; font-weight: 600;
+    cursor: pointer; transition: background 0.15s, transform 0.1s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--teal); color: var(--white); }
+  .btn-primary:hover { background: var(--teal-dim); }
+  .btn-secondary { background: var(--navy); color: var(--white); }
+  .btn-secondary:hover { background: var(--navy-light); }
+  .btn-outline { background: transparent; color: var(--teal); border: 1.5px solid var(--teal); }
+  .btn-outline:hover { background: #edfaf9; }
+  .btn-amber { background: var(--amber); color: var(--navy); }
+  .btn-amber:hover { background: #e6a402; }
+
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+
+  /* STATS */
+  #resultSection { display: none; }
+  .stat-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; margin-bottom: 20px; }
+  .stat-box {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 18px 20px;
+    border-left: 4px solid var(--teal);
+  }
+  .stat-box.amber { border-color: var(--amber); }
+  .stat-box.navy { border-color: var(--navy); }
+  .stat-box .stat-label { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--slate); }
+  .stat-box .stat-value { font-size: 2rem; font-weight: 700; color: var(--navy); font-family: 'IBM Plex Mono', monospace; line-height: 1.2; margin-top: 4px; }
+  .stat-box .stat-sub { font-size: 0.8rem; color: var(--slate); margin-top: 2px; }
+
+  /* CHART */
+  .chart-wrap { position: relative; height: 280px; }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  thead tr { background: var(--navy); color: var(--white); }
+  thead th { padding: 11px 14px; text-align: left; font-weight: 600; white-space: nowrap; }
+  tbody tr:nth-child(even) { background: var(--cream); }
+  tbody tr:hover { background: #e6f8f7; }
+  tbody td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: var(--navy); white-space: nowrap; }
+
+  .badge {
+    display: inline-block; padding: 2px 10px;
+    border-radius: 12px; font-size: 0.78rem; font-weight: 600;
+  }
+  .badge-teal { background: #d4f4f2; color: var(--teal-dim); }
+
+  /* PAGINATION */
+  .pagination { display: flex; gap: 6px; justify-content: center; margin-top: 14px; flex-wrap: wrap; }
+  .page-btn {
+    padding: 6px 12px; border: 1.5px solid var(--border); border-radius: 6px;
+    background: var(--white); cursor: pointer; font-size: 0.85rem; color: var(--navy);
+    font-family: 'Sarabun', sans-serif;
+  }
+  .page-btn.active { background: var(--teal); color: var(--white); border-color: var(--teal); }
+  .page-btn:hover:not(.active) { border-color: var(--teal); color: var(--teal); }
+
+  /* ALERT */
+  .alert { padding: 12px 16px; border-radius: 8px; font-size: 0.9rem; margin-bottom: 14px; }
+  .alert-info { background: #e8f4fd; color: #1a5f8a; border-left: 4px solid #3498db; }
+  .alert-warn { background: #fff8e1; color: #7a5c00; border-left: 4px solid var(--amber); }
+  .alert-error { background: #fdecea; color: #9b1c1c; border-left: 4px solid var(--red); }
+
+  /* FILE INFO */
+  .file-info { display: flex; align-items: center; gap: 10px; background: #edfaf9; border-radius: 8px; padding: 10px 16px; margin-bottom: 18px; }
+  .file-info .file-name { font-weight: 600; color: var(--navy); }
+  .file-info .file-meta { font-size: 0.82rem; color: var(--slate); }
+  .file-close { margin-left: auto; cursor: pointer; color: var(--slate); font-size: 1.1rem; }
+  .file-close:hover { color: var(--red); }
+
+  /* RADIO TOGGLE */
+  .mode-toggle { display: flex; gap: 0; background: var(--cream); border-radius: 7px; overflow: hidden; border: 1.5px solid var(--border); width: fit-content; }
+  .mode-toggle label {
+    padding: 7px 16px; cursor: pointer; font-size: 0.88rem; font-weight: 500;
+    color: var(--slate); transition: background 0.15s, color 0.15s;
+  }
+  .mode-toggle input[type=radio] { display: none; }
+  .mode-toggle input[type=radio]:checked + label { background: var(--teal); color: var(--white); }
+
+  .mt-10 { margin-top: 10px; }
+  .mt-18 { margin-top: 18px; }
+  .hidden { display: none !important; }
+
+  /* Dynamic filter columns */
+  .dynamic-filters { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-top: 12px; }
+
+  /* Multi-select dropdown */
+  .ms-wrap { position: relative; }
+  .ms-trigger {
+    width: 100%; padding: 9px 12px;
+    border: 1.5px solid var(--border); border-radius: 7px;
+    background: var(--white); cursor: pointer;
+    font-family: 'Sarabun', sans-serif; font-size: 0.92rem; color: var(--navy);
+    display: flex; align-items: center; justify-content: space-between; gap: 6px;
+    user-select: none;
+  }
+  .ms-trigger:hover { border-color: var(--teal); }
+  .ms-trigger.open { border-color: var(--teal); border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+  .ms-trigger .ms-arrow { font-size: 0.7rem; color: var(--slate); transition: transform 0.2s; }
+  .ms-trigger.open .ms-arrow { transform: rotate(180deg); }
+  .ms-trigger .ms-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ms-dropdown {
+    display: none; position: absolute; z-index: 100;
+    left: 0; right: 0; top: 100%;
+    background: var(--white); border: 1.5px solid var(--teal);
+    border-top: none; border-bottom-left-radius: 7px; border-bottom-right-radius: 7px;
+    max-height: 220px; overflow-y: auto;
+    box-shadow: 0 6px 18px rgba(27,42,74,0.13);
+  }
+  .ms-dropdown.open { display: block; }
+  .ms-search {
+    padding: 8px 10px; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; background: var(--white); z-index: 1;
+  }
+  .ms-search input {
+    width: 100%; border: 1px solid var(--border); border-radius: 5px;
+    padding: 5px 8px; font-size: 0.82rem; font-family: 'Sarabun', sans-serif;
+    outline: none;
+  }
+  .ms-search input:focus { border-color: var(--teal); }
+  .ms-option {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 12px; cursor: pointer; font-size: 0.88rem; color: var(--navy);
+  }
+  .ms-option:hover { background: #edfaf9; }
+  .ms-option input[type=checkbox] { accent-color: var(--teal); width: 15px; height: 15px; cursor: pointer; }
+  .ms-option.select-all { border-bottom: 1px solid var(--border); font-weight: 600; color: var(--teal-dim); }
+  .ms-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: #d4f4f2; color: var(--teal-dim); border-radius: 10px;
+    padding: 1px 8px; font-size: 0.78rem; font-weight: 600; white-space: nowrap;
+  }
+  .ms-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">📊</div>
+  <div>
+    <h1>ระบบกรองข้อมูลผู้ใช้บริการ</h1>
+    <span>นำเข้าไฟล์ Excel · กรองตามวัน/เวลา/ประเภท · ดูสถิติและกราฟ</span>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- UPLOAD -->
+  <div id="uploadSection">
+    <div class="upload-zone" id="dropZone">
+      <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
+      <div class="upload-icon">📂</div>
+      <p><strong>คลิกเพื่อเลือกไฟล์</strong> หรือลากวางไฟล์ที่นี่</p>
+      <p style="margin-top:6px;">รองรับไฟล์ .xlsx, .xls, .csv</p>
+    </div>
+    <div class="alert alert-info mt-10">
+      <strong>💡 รูปแบบข้อมูลที่รองรับ:</strong> ไฟล์ควรมีคอลัมน์วันที่-เวลา (DateTime) และคอลัมน์จำนวน/ประเภทผู้ใช้บริการ
+    </div>
+  </div>
+
+  <!-- MAPPING -->
+  <div id="mappingSection">
+    <div id="fileInfoBar" class="file-info">
+      <span>📄</span>
+      <span class="file-name" id="fileName">-</span>
+      <span class="file-meta" id="fileMeta"></span>
+      <span class="file-close" onclick="resetApp()" title="เปลี่ยนไฟล์">✕</span>
+    </div>
+
+    <div class="card">
+      <div class="card-title">ตั้งค่าคอลัมน์</div>
+      <div class="mapping-grid">
+        <div class="mapping-item">
+          <label>📅 คอลัมน์วันที่-เวลา (DateTime) <span style="color:var(--red)">*</span></label>
+          <select id="colDatetime">
+            <option value="">-- เลือกคอลัมน์ --</option>
+          </select>
+        </div>
+        <div class="mapping-item">
+          <label>📊 คอลัมน์นับจำนวน (ถ้ามี)</label>
+          <select id="colCount">
+            <option value="">(นับแถวอัตโนมัติ)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mt-18">
+        <label class="card-title" style="margin-bottom:10px;">คอลัมน์กรองเพิ่มเติม (เลือกได้หลายคอลัมน์)</label>
+        <div id="extraColsGrid" class="dynamic-filters"></div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="applyMapping()">✔ ยืนยันและโหลดข้อมูล</button>
+        <button class="btn btn-outline" onclick="resetApp()">↩ เปลี่ยนไฟล์</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILTER -->
+  <div id="filterSection">
+    <div class="card">
+      <div class="card-title">กรองข้อมูล</div>
+
+      <div style="margin-bottom:14px;">
+        <div class="mode-toggle">
+          <input type="radio" name="filterMode" id="modeDate" value="date" checked onchange="switchMode()">
+          <label for="modeDate">📅 วันที่</label>
+          <input type="radio" name="filterMode" id="modeMonth" value="month" onchange="switchMode()">
+          <label for="modeMonth">🗓 เดือน</label>
+          <input type="radio" name="filterMode" id="modeYear" value="year" onchange="switchMode()">
+          <label for="modeYear">📆 ปี</label>
+          <input type="radio" name="filterMode" id="modeRange" value="range" onchange="switchMode()">
+          <label for="modeRange">↔ ช่วงวันที่</label>
+        </div>
+      </div>
+
+      <div class="filter-grid" id="dateFilters">
+        <!-- date mode -->
+        <div class="filter-item" id="fDate">
+          <label>วันที่ (ค.ศ.)</label>
+          <input type="date" id="inputDate">
+        </div>
+        <!-- month mode -->
+        <div class="filter-item hidden" id="fMonth">
+          <label>เดือน</label>
+          <input type="month" id="inputMonth">
+        </div>
+        <!-- year mode -->
+        <div class="filter-item hidden" id="fYear">
+          <label>ปี (ค.ศ.)</label>
+          <input type="number" id="inputYear" placeholder="เช่น 2026" min="2000" max="2100">
+        </div>
+        <!-- range mode -->
+        <div class="filter-item hidden" id="fRangeStart">
+          <label>จากวันที่</label>
+          <input type="date" id="inputRangeStart">
+        </div>
+        <div class="filter-item hidden" id="fRangeEnd">
+          <label>ถึงวันที่</label>
+          <input type="date" id="inputRangeEnd">
+        </div>
+        <!-- shift -->
+        <div class="filter-item">
+          <label>กะเวลา</label>
+          <select id="inputShift">
+            <option value="">ทั้งหมด (ทุกกะ)</option>
+            <option value="morning">🌅 เช้า (07:00:00 - 15:59:59)</option>
+            <option value="afternoon">🌇 บ่าย (16:00:00 - 23:59:59)</option>
+            <option value="night">🌙 ดึก (00:00:00 - 06:59:59)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- dynamic extra filters -->
+      <div id="extraFiltersSection" class="hidden">
+        <div class="card-title" style="margin-top:16px;">กรองตามรายการ</div>
+        <div id="extraFilterInputs" class="dynamic-filters"></div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="runFilter()">🔍 กรองข้อมูล</button>
+        <button class="btn btn-outline" onclick="clearFilters()">✕ ล้างตัวกรอง</button>
+        <button class="btn btn-amber" onclick="exportExcel()">⬇ ส่งออก Excel</button>
+        <button class="btn btn-secondary" onclick="resetApp()">↩ เปลี่ยนไฟล์</button>
+        <button class="btn" style="background:#6B7A99;color:#fff;" onclick="showDebug()">🔎 ตรวจสอบข้อมูลดิบ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="resultSection">
+    <div id="alertBox"></div>
+    <div class="stat-row" id="statRow"></div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:20px;" id="chartRow">
+      <div class="card">
+        <div class="card-title">จำนวนผู้ใช้บริการตามช่วงเวลา</div>
+        <div class="chart-wrap"><canvas id="chartTime"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">แนวโน้มตามวัน</div>
+        <div class="chart-wrap"><canvas id="chartDay"></canvas></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">สรุปจำนวนตามกะ</div>
+      <div class="stat-row" id="shiftStatRow"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">สรุปจำนวนรายวัน</div>
+      <div class="table-wrap">
+        <table id="dailySummaryTable">
+          <thead><tr><th>วันที่</th><th>วัน</th><th>🌅 เช้า</th><th>🌇 บ่าย</th><th>🌙 ดึก</th><th>รวม</th></tr></thead>
+          <tbody id="dailySummaryBody"></tbody>
+        </table>
+      </div>
+      <div class="btn-row" style="margin-top:14px;">
+        <button class="btn btn-amber" onclick="exportDailySummary()">⬇ ส่งออกสรุปรายวัน (Excel)</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">รายการข้อมูล</div>
+      <div class="table-wrap">
+        <table id="resultTable">
+          <thead id="tableHead"></thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="pagination"></div>
+      <div style="margin-top:10px; font-size:0.82rem; color:var(--slate);" id="pageInfo"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let rawData = [], filteredData = [], allColumns = [], dtCol = '', countCol = '', extraCols = [];
+let chartTime = null, chartDay = null;
+let currentPage = 1; const PAGE_SIZE = 50;
+
+// ==================== UPLOAD ====================
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+['dragover','dragenter'].forEach(e => dropZone.addEventListener(e, ev => { ev.preventDefault(); dropZone.classList.add('drag'); }));
+['dragleave','drop'].forEach(e => dropZone.addEventListener(e, ev => { dropZone.classList.remove('drag'); }));
+dropZone.addEventListener('drop', ev => { ev.preventDefault(); const f = ev.dataTransfer.files[0]; if (f) loadFile(f); });
+fileInput.addEventListener('change', () => { if (fileInput.files[0]) loadFile(fileInput.files[0]); });
+
+function loadFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const wb = XLSX.read(e.target.result, { type: 'binary', cellDates: true });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      // raw:true เพื่อรับ Date object จริง ๆ สำหรับ cell type 'd'
+      // แต่ text/number จะยังเป็นค่าดิบ
+      rawData = XLSX.utils.sheet_to_json(ws, { raw: true, defval: '' });
+      if (!rawData.length) { alert('ไม่พบข้อมูลในไฟล์'); return; }
+      allColumns = Object.keys(rawData[0]);
+      setupMapping(file.name, rawData.length);
+    } catch(err) { alert('ไม่สามารถอ่านไฟล์ได้: ' + err.message); }
+  };
+  reader.readAsBinaryString(file);
+}
+
+function setupMapping(fname, rows) {
+  document.getElementById('uploadSection').style.display = 'none';
+  document.getElementById('mappingSection').style.display = 'block';
+  document.getElementById('fileName').textContent = fname;
+  document.getElementById('fileMeta').textContent = `${rows.toLocaleString()} แถว · ${allColumns.length} คอลัมน์`;
+
+  const fills = (id, extra='') => {
+    const s = document.getElementById(id);
+    s.innerHTML = (extra ? `<option value="">${extra}</option>` : '') +
+      allColumns.map(c => `<option value="${c}">${c}</option>`).join('');
+  };
+  fills('colDatetime'); fills('colCount', '(นับแถวอัตโนมัติ)');
+
+  // Auto-detect datetime column
+  const dtGuess = allColumns.find(c => /date|time|วัน|เวลา|datetime/i.test(c));
+  if (dtGuess) document.getElementById('colDatetime').value = dtGuess;
+
+  // Extra columns checkboxes
+  const grid = document.getElementById('extraColsGrid');
+  grid.innerHTML = allColumns.map(c => `
+    <label style="display:flex;align-items:center;gap:8px;font-size:0.88rem;cursor:pointer;">
+      <input type="checkbox" value="${c}" style="accent-color:var(--teal);width:16px;height:16px;">
+      <span>${c}</span>
+    </label>`).join('');
+}
+
+function applyMapping() {
+  dtCol = document.getElementById('colDatetime').value;
+  if (!dtCol) { alert('กรุณาเลือกคอลัมน์วันที่-เวลา'); return; }
+  countCol = document.getElementById('colCount').value;
+  extraCols = [...document.querySelectorAll('#extraColsGrid input:checked')].map(i => i.value);
+
+  document.getElementById('mappingSection').style.display = 'none';
+  document.getElementById('filterSection').style.display = 'block';
+
+  buildExtraFilterInputs();
+  document.getElementById('resultSection').style.display = 'block';
+  runFilter();
+}
+
+function buildExtraFilterInputs() {
+  const sec = document.getElementById('extraFiltersSection');
+  const container = document.getElementById('extraFilterInputs');
+  if (!extraCols.length) { sec.classList.add('hidden'); return; }
+  sec.classList.remove('hidden');
+
+  container.innerHTML = extraCols.map(col => {
+    const safeId = col.replace(/\W/g,'_');
+    const vals = [...new Set(rawData.map(r => r[col]).filter(v => v !== undefined && v !== ''))].sort();
+    const hasEmpty = rawData.some(r => r[col] === undefined || r[col] === '' || r[col] === null);
+    return `<div class="filter-item">
+      <label>${col}</label>
+      <div class="ms-wrap" id="msWrap_${safeId}">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
+          <span style="font-size:0.78rem;color:var(--slate);">โหมด:</span>
+          <label style="display:flex;align-items:center;gap:3px;font-size:0.78rem;cursor:pointer;font-weight:600;color:var(--teal-dim);">
+            <input type="radio" name="msMode_${safeId}" value="include" checked onchange="onMsModeChange('${safeId}')"> เลือก
+          </label>
+          <label style="display:flex;align-items:center;gap:3px;font-size:0.78rem;cursor:pointer;font-weight:600;color:var(--red);">
+            <input type="radio" name="msMode_${safeId}" value="exclude" onchange="onMsModeChange('${safeId}')"> ยกเว้น
+          </label>
+        </div>
+        <div class="ms-trigger" id="msTrigger_${safeId}" onclick="toggleMs('${safeId}')">
+          <span class="ms-label" id="msLabel_${safeId}">(ทั้งหมด)</span>
+          <span class="ms-arrow">▼</span>
+        </div>
+        <div class="ms-dropdown" id="msDropdown_${safeId}">
+          <div class="ms-search"><input type="text" placeholder="ค้นหา..." oninput="filterMsOptions('${safeId}', this.value)"></div>
+          <div class="ms-option select-all" onclick="toggleAllMs('${safeId}')">
+            <input type="checkbox" id="msAll_${safeId}" checked onchange="toggleAllMs('${safeId}')"> เลือกทั้งหมด
+          </div>
+          ${hasEmpty ? `
+          <div class="ms-option" onclick="toggleMsItem('${safeId}','__empty__',this)">
+            <input type="checkbox" class="msItem_${safeId}" value="__empty__" checked onchange="updateMsLabel('${safeId}')">
+            <em style="color:var(--slate);">(ข้อมูลว่าง)</em>
+          </div>` : ''}
+          ${vals.map(v => `
+          <div class="ms-option" onclick="toggleMsItem('${safeId}','${v.replace(/'/g,"\\'")}',this)">
+            <input type="checkbox" class="msItem_${safeId}" value="${v}" checked onchange="updateMsLabel('${safeId}')"> ${v}
+          </div>`).join('')}
+        </div>
+        <div class="ms-tags" id="msTags_${safeId}"></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Close dropdowns when clicking outside
+  document.addEventListener('click', closeAllMs);
+}
+
+function toggleMs(id) {
+  event.stopPropagation();
+  const trigger = document.getElementById('msTrigger_'+id);
+  const dropdown = document.getElementById('msDropdown_'+id);
+  const isOpen = dropdown.classList.contains('open');
+  closeAllMs();
+  if (!isOpen) { trigger.classList.add('open'); dropdown.classList.add('open'); }
+}
+
+function closeAllMs() {
+  document.querySelectorAll('.ms-trigger.open').forEach(t => t.classList.remove('open'));
+  document.querySelectorAll('.ms-dropdown.open').forEach(d => d.classList.remove('open'));
+}
+
+function filterMsOptions(id, search) {
+  document.querySelectorAll('.msItem_'+id).forEach(cb => {
+    const opt = cb.closest('.ms-option');
+    opt.style.display = cb.value.toLowerCase().includes(search.toLowerCase()) ? '' : 'none';
+  });
+}
+
+function toggleMsItem(id, val, row) {
+  const cb = row.querySelector('input[type=checkbox]');
+  cb.checked = !cb.checked;
+  updateMsLabel(id);
+  event.stopPropagation();
+}
+
+function toggleAllMs(id) {
+  event.stopPropagation();
+  const allCb = document.getElementById('msAll_'+id);
+  const items = document.querySelectorAll('.msItem_'+id);
+  items.forEach(cb => cb.checked = allCb.checked);
+  updateMsLabel(id);
+}
+
+function getMsSelectAllText(mode) {
+  return mode === 'exclude' ? 'ยกเว้นทั้งหมด / ไม่ยกเว้นอะไร' : 'เลือกทั้งหมด';
+}
+
+function onMsModeChange(id) {
+  // เมื่อสลับโหมด ให้ reset เป็นค่าเริ่มต้นที่เหมาะสม
+  const mode = document.querySelector(`input[name=msMode_${id}]:checked`).value;
+  const items = document.querySelectorAll('.msItem_'+id);
+  if (mode === 'include') {
+    // เลือก = ค่าเริ่มต้นคือเลือกทั้งหมด (ไม่กรอง)
+    items.forEach(cb => cb.checked = true);
+  } else {
+    // ยกเว้น = ค่าเริ่มต้นคือไม่ยกเว้นอะไร (ไม่กรอง)
+    items.forEach(cb => cb.checked = false);
+  }
+  updateMsLabel(id);
+}
+
+function updateMsLabel(id) {
+  const items = document.querySelectorAll('.msItem_'+id);
+  const checked = [...items].filter(cb => cb.checked);
+  const allCb = document.getElementById('msAll_'+id);
+  allCb.checked = checked.length === items.length;
+  allCb.indeterminate = checked.length > 0 && checked.length < items.length;
+
+  const modeEl = document.querySelector(`input[name=msMode_${id}]:checked`);
+  const mode = modeEl ? modeEl.value : 'include';
+
+  const label = document.getElementById('msLabel_'+id);
+  const tags = document.getElementById('msTags_'+id);
+
+  const displayVal = v => v === '__empty__' ? '(ข้อมูลว่าง)' : v;
+
+  if (mode === 'include') {
+    if (checked.length === 0 || checked.length === items.length) {
+      label.textContent = checked.length === 0 ? '(ไม่เลือก)' : '(ทั้งหมด)';
+      tags.innerHTML = '';
+    } else {
+      label.textContent = `เลือก ${checked.length} รายการ`;
+      tags.innerHTML = checked.map(cb => `<span class="ms-tag">${displayVal(cb.value)} <span onclick="removeMsItem('${id}','${cb.value.replace(/'/g,"\\'")}')">✕</span></span>`).join('');
+    }
+  } else {
+    // exclude mode: ticked items are EXCLUDED
+    if (checked.length === 0) {
+      label.textContent = '(ไม่ยกเว้นอะไร — เอาทั้งหมด)';
+      tags.innerHTML = '';
+    } else if (checked.length === items.length) {
+      label.textContent = '(ยกเว้นทั้งหมด — ไม่เหลือเลย)';
+      tags.innerHTML = '';
+    } else {
+      label.textContent = `ยกเว้น ${checked.length} รายการ`;
+      tags.innerHTML = checked.map(cb => `<span class="ms-tag" style="background:#fdecea;color:var(--red);">${displayVal(cb.value)} <span onclick="removeMsItem('${id}','${cb.value.replace(/'/g,"\\'")}')">✕</span></span>`).join('');
+    }
+  }
+}
+
+function removeMsItem(id, val) {
+  const cb = [...document.querySelectorAll('.msItem_'+id)].find(c => c.value === val);
+  if (cb) { cb.checked = false; updateMsLabel(id); }
+}
+
+// ==================== MODE SWITCH ====================
+function switchMode() {
+  const mode = document.querySelector('input[name=filterMode]:checked').value;
+  document.getElementById('fDate').classList.toggle('hidden', mode !== 'date');
+  document.getElementById('fMonth').classList.toggle('hidden', mode !== 'month');
+  document.getElementById('fYear').classList.toggle('hidden', mode !== 'year');
+  document.getElementById('fRangeStart').classList.toggle('hidden', mode !== 'range');
+  document.getElementById('fRangeEnd').classList.toggle('hidden', mode !== 'range');
+}
+
+// ==================== DEBUG ====================
+function showDebug() {
+  if (!rawData.length || !dtCol) { alert('กรุณาโหลดไฟล์และยืนยันคอลัมน์ก่อน'); return; }
+  const samples = rawData.slice(0, 10);
+  let info = `📋 ตัวอย่างค่าในคอลัมน์ "${dtCol}" (10 แถวแรก)\n\n`;
+  samples.forEach((row, i) => {
+    const raw = row[dtCol];
+    const parsed = parseDate(raw);
+    info += `แถว ${i+1}: raw="${raw}" (type=${typeof raw})\n`;
+    info += `        → parseDate: ${parsed ? parsed.toLocaleString('th-TH') : 'null / Invalid'}\n\n`;
+  });
+  alert(info);
+}
+function parseDate(val) {
+  if (!val && val !== 0) return null;
+
+  // JavaScript Date object (cellDates:true จาก XLSX)
+  if (val instanceof Date) return isNaN(val) ? null : val;
+
+  // Excel serial number (raw:true) — days since 1899-12-30, แปลงให้ตรง local time
+  if (typeof val === 'number') {
+    const utcMs = (val - 25569) * 86400 * 1000;
+    const localOffset = new Date(utcMs).getTimezoneOffset() * 60000;
+    const d = new Date(utcMs + localOffset);
+    return isNaN(d) ? null : d;
+  }
+
+  const str = String(val).trim();
+  if (!str) return null;
+
+  // รูปแบบ dd/mm/yyyy หรือ dd-mm-yyyy หรือ dd.mm.yyyy [H:MM:SS]
+  const thaiMatch = str.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})(?:[T\s]+(\d{1,2})[:\.](\d{2})(?:[:\.](\d{2}))?)?/);
+  if (thaiMatch) {
+    let y = parseInt(thaiMatch[3]);
+    if (y > 2400) y -= 543;
+    else if (y < 100) y += 2000;
+    const result = new Date(y, parseInt(thaiMatch[2])-1, parseInt(thaiMatch[1]),
+      parseInt(thaiMatch[4]||0), parseInt(thaiMatch[5]||0), parseInt(thaiMatch[6]||0));
+    if (!isNaN(result)) return result;
+  }
+
+  // รูปแบบ yyyy-mm-dd [HH:MM:SS] (ไม่ใช้ new Date(string) เพื่อหลีกเลี่ยง UTC shift)
+  const isoMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T\s](\d{2}):(\d{2})(?::(\d{2}))?)?/);
+  if (isoMatch) {
+    const result = new Date(
+      parseInt(isoMatch[1]), parseInt(isoMatch[2])-1, parseInt(isoMatch[3]),
+      parseInt(isoMatch[4]||0), parseInt(isoMatch[5]||0), parseInt(isoMatch[6]||0)
+    );
+    if (!isNaN(result)) return result;
+  }
+
+  // Fallback
+  const d = new Date(str);
+  return isNaN(d) ? null : d;
+}
+
+// ==================== SHIFT HELPER ====================
+// เช้า 07:00:00-15:59:59, บ่าย 16:00:00-23:59:59, ดึก 00:00:00-06:59:59
+function getShift(dt) {
+  const sec = dt.getHours()*3600 + dt.getMinutes()*60 + dt.getSeconds();
+  if (sec >= 7*3600 && sec <= 15*3600+59*60+59) return 'morning';
+  if (sec >= 16*3600 && sec <= 23*3600+59*60+59) return 'afternoon';
+  return 'night'; // 00:00:00 - 06:59:59
+}
+const shiftLabel = { morning: '🌅 เช้า', afternoon: '🌇 บ่าย', night: '🌙 ดึก' };
+
+function runFilter() {
+  const mode = document.querySelector('input[name=filterMode]:checked').value;
+  const shiftFilter = document.getElementById('inputShift').value; // '', 'morning', 'afternoon', 'night'
+
+  let dateStart = null, dateEnd = null;
+  if (mode === 'date') {
+    const v = document.getElementById('inputDate').value; // yyyy-mm-dd
+    if (v) {
+      const [y,mo,d] = v.split('-').map(Number);
+      dateStart = new Date(y, mo-1, d, 0, 0, 0);
+      dateEnd   = new Date(y, mo-1, d, 23, 59, 59, 999);
+    }
+  } else if (mode === 'month') {
+    const v = document.getElementById('inputMonth').value; // yyyy-mm
+    if (v) {
+      const [y,mo] = v.split('-').map(Number);
+      dateStart = new Date(y, mo-1, 1, 0, 0, 0);
+      dateEnd   = new Date(y, mo, 0, 23, 59, 59, 999);
+    }
+  } else if (mode === 'year') {
+    const y = parseInt(document.getElementById('inputYear').value);
+    if (y) {
+      dateStart = new Date(y, 0, 1, 0, 0, 0);
+      dateEnd   = new Date(y, 11, 31, 23, 59, 59, 999);
+    }
+  } else if (mode === 'range') {
+    const s = document.getElementById('inputRangeStart').value;
+    const e = document.getElementById('inputRangeEnd').value;
+    if (s) { const [y,mo,d]=s.split('-').map(Number); dateStart=new Date(y,mo-1,d,0,0,0); }
+    if (e) { const [y,mo,d]=e.split('-').map(Number); dateEnd=new Date(y,mo-1,d,23,59,59,999); }
+  }
+
+  const extraFiltersVals = {}; // col -> { mode: 'include'|'exclude', vals: [...] }
+  extraCols.forEach(col => {
+    const safeId = col.replace(/\W/g,'_');
+    const modeEl = document.querySelector(`input[name=msMode_${safeId}]:checked`);
+    const fmode = modeEl ? modeEl.value : 'include';
+    const checked = [...document.querySelectorAll('.msItem_'+safeId+':checked')].map(cb => cb.value);
+    const all = [...document.querySelectorAll('.msItem_'+safeId)].length;
+
+    if (fmode === 'include') {
+      // ถ้าเลือกครบทั้งหมด หรือไม่เลือกเลย = ไม่กรอง (เอาทั้งหมด)
+      if (checked.length > 0 && checked.length < all) {
+        extraFiltersVals[col] = { mode: 'include', vals: checked };
+      }
+    } else {
+      // exclude: ถ้าไม่ติ๊กอะไรเลย = ไม่กรอง (ไม่ยกเว้นอะไร)
+      if (checked.length > 0) {
+        extraFiltersVals[col] = { mode: 'exclude', vals: checked };
+      }
+    }
+  });
+
+  filteredData = rawData.filter(row => {
+    const dt = parseDate(row[dtCol]);
+    if (!dt || isNaN(dt)) return false;
+
+    if (dateStart && dt < dateStart) return false;
+    if (dateEnd && dt > dateEnd) return false;
+
+    if (shiftFilter && getShift(dt) !== shiftFilter) return false;
+
+    for (const [col, rule] of Object.entries(extraFiltersVals)) {
+      const rawVal = row[col];
+      const isEmpty = rawVal === undefined || rawVal === null || rawVal === '';
+      const rowValStr = isEmpty ? '__empty__' : String(rawVal);
+
+      if (rule.mode === 'include') {
+        if (!rule.vals.includes(rowValStr)) return false;
+      } else {
+        // exclude: ถ้าค่าของแถวอยู่ในรายการที่ติ๊กไว้ -> ตัดออก
+        if (rule.vals.includes(rowValStr)) return false;
+      }
+    }
+    return true;
+  });
+
+  currentPage = 1;
+  renderResult();
+}
+
+function clearFilters() {
+  document.getElementById('inputDate').value = '';
+  document.getElementById('inputMonth').value = '';
+  document.getElementById('inputYear').value = '';
+  document.getElementById('inputRangeStart').value = '';
+  document.getElementById('inputRangeEnd').value = '';
+  document.getElementById('inputShift').value = '';
+  extraCols.forEach(col => {
+    const safeId = col.replace(/\W/g,'_');
+    document.querySelectorAll('.msItem_'+safeId).forEach(cb => cb.checked = true);
+    const allCb = document.getElementById('msAll_'+safeId);
+    if (allCb) { allCb.checked = true; allCb.indeterminate = false; }
+    const includeRadio = document.querySelector(`input[name=msMode_${safeId}][value=include]`);
+    if (includeRadio) includeRadio.checked = true;
+    const label = document.getElementById('msLabel_'+safeId);
+    if (label) label.textContent = '(ทั้งหมด)';
+    const tags = document.getElementById('msTags_'+safeId);
+    if (tags) tags.innerHTML = '';
+  });
+  filteredData = [...rawData];
+  currentPage = 1;
+  renderResult();
+}
+
+// ==================== RENDER ====================
+function renderResult() {
+  document.getElementById('resultSection').style.display = 'block';
+  renderStats();
+  renderShiftSummary();
+  renderCharts();
+  renderDailySummary();
+  renderTable();
+}
+
+function count(data) {
+  if (countCol) return data.reduce((s,r) => s + (parseFloat(r[countCol])||1), 0);
+  return data.length;
+}
+
+function renderShiftSummary() {
+  const shiftCounts = { morning: 0, afternoon: 0, night: 0 };
+  filteredData.forEach(r => {
+    const d = parseDate(r[dtCol]);
+    if (!d) return;
+    shiftCounts[getShift(d)] += (countCol ? (parseFloat(r[countCol])||1) : 1);
+  });
+  const total = shiftCounts.morning + shiftCounts.afternoon + shiftCounts.night;
+  const pct = v => total ? ((v/total)*100).toFixed(1) : 0;
+
+  document.getElementById('shiftStatRow').innerHTML = `
+    <div class="stat-box">
+      <div class="stat-label">🌅 เช้า (07:00-15:59:59)</div>
+      <div class="stat-value">${shiftCounts.morning.toLocaleString()}</div>
+      <div class="stat-sub">${pct(shiftCounts.morning)}% ของทั้งหมด</div>
+    </div>
+    <div class="stat-box amber">
+      <div class="stat-label">🌇 บ่าย (16:00-23:59:59)</div>
+      <div class="stat-value">${shiftCounts.afternoon.toLocaleString()}</div>
+      <div class="stat-sub">${pct(shiftCounts.afternoon)}% ของทั้งหมด</div>
+    </div>
+    <div class="stat-box navy">
+      <div class="stat-label">🌙 ดึก (00:00-06:59:59)</div>
+      <div class="stat-value">${shiftCounts.night.toLocaleString()}</div>
+      <div class="stat-sub">${pct(shiftCounts.night)}% ของทั้งหมด</div>
+    </div>`;
+}
+
+function renderStats() {
+  const total = count(filteredData);
+  const rawTotal = count(rawData);
+  const pct = rawTotal ? ((total/rawTotal)*100).toFixed(1) : 0;
+  const hrs = [...new Set(filteredData.map(r => { const d=parseDate(r[dtCol]); return d?d.getHours():null; }).filter(h=>h!==null))];
+  const peakHour = hrs.length ? hrs.sort((a,b) => filteredData.filter(r=>{const d=parseDate(r[dtCol]);return d&&d.getHours()===b}).length - filteredData.filter(r=>{const d=parseDate(r[dtCol]);return d&&d.getHours()===a}).length)[0] : '-';
+
+  document.getElementById('statRow').innerHTML = `
+    <div class="stat-box">
+      <div class="stat-label">ผู้ใช้บริการที่กรอง</div>
+      <div class="stat-value">${total.toLocaleString()}</div>
+      <div class="stat-sub">จาก ${rawTotal.toLocaleString()} ทั้งหมด</div>
+    </div>
+    <div class="stat-box amber">
+      <div class="stat-label">สัดส่วน</div>
+      <div class="stat-value">${pct}%</div>
+      <div class="stat-sub">ของข้อมูลทั้งหมด</div>
+    </div>
+    <div class="stat-box navy">
+      <div class="stat-label">ช่วงเวลายอดนิยม</div>
+      <div class="stat-value">${peakHour !== '-' ? peakHour+':00' : '-'}</div>
+      <div class="stat-sub">ในข้อมูลที่กรองแล้ว</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">จำนวนแถว</div>
+      <div class="stat-value">${filteredData.length.toLocaleString()}</div>
+      <div class="stat-sub">แถวที่ผ่านเงื่อนไข</div>
+    </div>`;
+}
+
+function renderCharts() {
+  // Time chart (by hour)
+  const hourCounts = Array(24).fill(0);
+  filteredData.forEach(r => { const d = parseDate(r[dtCol]); if (d) hourCounts[d.getHours()] += (countCol ? parseFloat(r[countCol])||1 : 1); });
+
+  if (chartTime) chartTime.destroy();
+  chartTime = new Chart(document.getElementById('chartTime'), {
+    type: 'bar',
+    data: {
+      labels: Array.from({length:24},(_,i)=>i+':00'),
+      datasets: [{ label:'ผู้ใช้บริการ', data: hourCounts, backgroundColor: '#2EC4B6CC', borderRadius: 5 }]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false} }, scales:{ y:{beginAtZero:true} } }
+  });
+
+  // Day trend
+  const dayCounts = {};
+  filteredData.forEach(r => {
+    const d = parseDate(r[dtCol]);
+    if (d) {
+      const key = d.toISOString().slice(0,10);
+      dayCounts[key] = (dayCounts[key]||0) + (countCol ? parseFloat(r[countCol])||1 : 1);
+    }
+  });
+  const dayKeys = Object.keys(dayCounts).sort();
+
+  if (chartDay) chartDay.destroy();
+  chartDay = new Chart(document.getElementById('chartDay'), {
+    type: 'line',
+    data: {
+      labels: dayKeys,
+      datasets: [{ label:'ผู้ใช้บริการ', data: dayKeys.map(k=>dayCounts[k]), borderColor:'#1B2A4A', backgroundColor:'#1B2A4A22', tension:0.3, fill:true, pointRadius:3 }]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{beginAtZero:true} } }
+  });
+}
+
+function formatDisplay(col, val) {
+  if (col === dtCol) {
+    const d = parseDate(val);
+    if (d && !isNaN(d)) {
+      const dd = String(d.getDate()).padStart(2,'0');
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const yyyy = d.getFullYear();
+      const hh = String(d.getHours()).padStart(2,'0');
+      const mi = String(d.getMinutes()).padStart(2,'0');
+      const ss = String(d.getSeconds()).padStart(2,'0');
+      return `${dd}/${mm}/${yyyy} ${hh}:${mi}:${ss}`;
+    }
+  }
+  return val ?? '';
+}
+
+function renderTable() {
+  const cols = allColumns;
+  document.getElementById('tableHead').innerHTML =
+    `<tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr>`;
+
+  const start = (currentPage-1)*PAGE_SIZE, end = start+PAGE_SIZE;
+  const pageData = filteredData.slice(start, end);
+  document.getElementById('tableBody').innerHTML = pageData.map(r =>
+    `<tr>${cols.map(c=>`<td>${formatDisplay(c, r[c])}</td>`).join('')}</tr>`
+  ).join('');
+
+  const totalPages = Math.max(1, Math.ceil(filteredData.length/PAGE_SIZE));
+  const pag = document.getElementById('pagination');
+  pag.innerHTML = '';
+  for (let i=1; i<=totalPages; i++) {
+    const b = document.createElement('button');
+    b.className = 'page-btn' + (i===currentPage?' active':'');
+    b.textContent = i;
+    b.onclick = () => { currentPage=i; renderTable(); };
+    pag.appendChild(b);
+  }
+  document.getElementById('pageInfo').textContent =
+    `แสดง ${start+1}–${Math.min(end, filteredData.length)} จาก ${filteredData.length.toLocaleString()} แถว`;
+}
+
+// ==================== DAILY SUMMARY ====================
+const thaiDayNames = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+
+function renderDailySummary() {
+  const dayMap = {}; // 'yyyy-mm-dd' -> { morning, afternoon, night }
+  filteredData.forEach(r => {
+    const d = parseDate(r[dtCol]);
+    if (!d) return;
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    if (!dayMap[key]) dayMap[key] = { morning: 0, afternoon: 0, night: 0 };
+    const amount = countCol ? (parseFloat(r[countCol])||1) : 1;
+    dayMap[key][getShift(d)] += amount;
+  });
+
+  const keys = Object.keys(dayMap).sort();
+  const tbody = document.getElementById('dailySummaryBody');
+
+  if (!keys.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--slate);padding:18px;">ไม่มีข้อมูล</td></tr>`;
+    window._dailySummaryRows = [];
+    return;
+  }
+
+  const rows = keys.map(k => {
+    const [y,m,d] = k.split('-').map(Number);
+    const dateObj = new Date(y, m-1, d);
+    const displayDate = `${String(d).padStart(2,'0')}/${String(m).padStart(2,'0')}/${y}`;
+    const dayName = thaiDayNames[dateObj.getDay()];
+    const s = dayMap[k];
+    const total = s.morning + s.afternoon + s.night;
+    return { displayDate, dayName, morning: s.morning, afternoon: s.afternoon, night: s.night, total };
+  });
+
+  window._dailySummaryRows = rows;
+
+  tbody.innerHTML = rows.map(r =>
+    `<tr><td>${r.displayDate}</td><td>${r.dayName}</td><td>${r.morning.toLocaleString()}</td><td>${r.afternoon.toLocaleString()}</td><td>${r.night.toLocaleString()}</td><td><span class="badge badge-teal">${r.total.toLocaleString()}</span></td></tr>`
+  ).join('') + `<tr style="background:#1B2A4A11;font-weight:700;">
+      <td colspan="2">รวมทั้งหมด</td>
+      <td>${rows.reduce((s,r)=>s+r.morning,0).toLocaleString()}</td>
+      <td>${rows.reduce((s,r)=>s+r.afternoon,0).toLocaleString()}</td>
+      <td>${rows.reduce((s,r)=>s+r.night,0).toLocaleString()}</td>
+      <td>${rows.reduce((s,r)=>s+r.total,0).toLocaleString()}</td>
+    </tr>`;
+}
+
+function exportDailySummary() {
+  const rows = window._dailySummaryRows || [];
+  if (!rows.length) { alert('ไม่มีข้อมูลสรุปสำหรับส่งออก'); return; }
+  const exportRows = rows.map(r => ({
+    'วันที่': r.displayDate, 'วัน': r.dayName,
+    'เช้า (07:00-15:59:59)': r.morning, 'บ่าย (16:00-23:59:59)': r.afternoon, 'ดึก (00:00-06:59:59)': r.night,
+    'รวม': r.total
+  }));
+  exportRows.push({
+    'วันที่': 'รวมทั้งหมด', 'วัน': '',
+    'เช้า (07:00-15:59:59)': rows.reduce((s,r)=>s+r.morning,0),
+    'บ่าย (16:00-23:59:59)': rows.reduce((s,r)=>s+r.afternoon,0),
+    'ดึก (00:00-06:59:59)': rows.reduce((s,r)=>s+r.night,0),
+    'รวม': rows.reduce((s,r)=>s+r.total,0)
+  });
+  const ws = XLSX.utils.json_to_sheet(exportRows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'สรุปรายวัน');
+  XLSX.writeFile(wb, 'daily_summary.xlsx');
+}
+
+// ==================== EXPORT ====================
+function exportExcel() {
+  if (!filteredData.length) { alert('ไม่มีข้อมูลสำหรับส่งออก'); return; }
+  const ws = XLSX.utils.json_to_sheet(filteredData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'ผลลัพธ์');
+  XLSX.writeFile(wb, 'filtered_data.xlsx');
+}
+
+function resetApp() {
+  rawData=[]; filteredData=[]; allColumns=[]; dtCol=''; countCol=''; extraCols=[];
+  fileInput.value='';
+  document.getElementById('uploadSection').style.display='block';
+  document.getElementById('mappingSection').style.display='none';
+  document.getElementById('filterSection').style.display='none';
+  document.getElementById('resultSection').style.display='none';
+  if(chartTime){chartTime.destroy();chartTime=null;}
+  if(chartDay){chartDay.destroy();chartDay=null;}
+}
+</script>
+
+<style>#__demoBar *{box-sizing:border-box} body{padding-bottom:70px !important}</style>
+<div id="__demoBar" style="position:fixed;left:0;right:0;bottom:0;z-index:2147483000;background:#0A1F26;color:#fff;font-family:'Sarabun',sans-serif;font-size:14px;padding:10px 16px;display:flex;gap:12px;align-items:center;box-shadow:0 -8px 24px rgba(0,0,0,.28)">
+<b style="font-family:'Bai Jamjuree','Sarabun',sans-serif">ตัวอย่างสาธิต</b>
+<span style="color:#B4CBCF">ข้อมูลสมมติ · ประมวลผลในเครื่องคุณ</span>
+<button id="__demoLoad" style="margin-left:auto;background:#DFA23C;color:#2A1E08;border:none;border-radius:8px;padding:9px 15px;font-weight:700;cursor:pointer;font-family:'Bai Jamjuree','Sarabun',sans-serif">▶ โหลดข้อมูลตัวอย่าง</button>
+<a href="./index.html" style="color:#B4CBCF;text-decoration:none;font-weight:600">← แกลเลอรี</a>
+<span onclick="document.getElementById('__demoBar').remove()" style="cursor:pointer;color:#B4CBCF;font-weight:700" title="ซ่อน">✕</span>
+</div>
+
+<script>(function(){
+ var btn=document.getElementById('__demoLoad');
+ btn.addEventListener('click',function(){
+  try{
+   var rows=BUILD();
+   var ws=XLSX.utils.json_to_sheet(rows);
+   var wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'ตัวอย่าง');
+   var buf=XLSX.write(wb,{type:'array',bookType:'xlsx'});
+   var file=new File([buf],'ข้อมูลตัวอย่าง.xlsx',{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+   var input=document.getElementById('fileInput');
+   var dt=new DataTransfer(); dt.items.add(file); input.files=dt.files;
+   input.dispatchEvent(new Event('change',{bubbles:true}));
+   btn.textContent='✓ โหลดแล้ว'; btn.disabled=true; btn.style.opacity=.6;
+  }catch(e){ alert('โหลดตัวอย่างไม่สำเร็จ: '+e.message); }
+ });
+ function BUILD(){
+ var exams=['Chest PA','KUB','Abdomen','C-spine','L-spine','Knee','Pelvis','Skull','Wrist','Ankle'];
+ var rooms=['ห้อง 1','ห้อง 2']; var shifts=[[8,30],[14,30],[23,30]]; var rows=[];
+ for(var d=1;d<=12;d++){ shifts.forEach(function(t){ var c=1+Math.floor(Math.random()*4);
+   for(var k=0;k<c;k++){ rows.push({
+     'วันที่-เวลา':'2026-06-'+String(d).padStart(2,'0')+' '+String(t[0]).padStart(2,'0')+':'+String(t[1]).padStart(2,'0'),
+     'รายการตรวจ':exams[Math.floor(Math.random()*exams.length)],
+     'ห้อง':rooms[Math.floor(Math.random()*rooms.length)], 'จำนวน':1 }); } }); }
+ return rows;
+}
+})();</script>
+
+</body>
+</html>

@@ -64,8 +64,8 @@
 
   /* ── ★ การตัดสินใจ 3 ทาง: การ์ดลอย 3 ใบ เมาส์ชี้แล้วเด่นขึ้นมา ── */
   .pick .lead{margin-bottom:var(--s6)}
-  .decide{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s4)}
-  @media(max-width:900px){.decide{grid-template-columns:1fr;max-width:560px;margin:0 auto}}
+  .decide{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--s4)}
+  @media(max-width:760px){.decide{grid-template-columns:1fr;max-width:560px;margin:0 auto}}
 
   .opt{background:#fff;border:1.5px solid var(--line);border-radius:var(--r-card);overflow:hidden;
     display:flex;flex-direction:column;position:relative;
@@ -118,6 +118,18 @@
 
   /* แบบสอบถาม */
   .mini-q{font-size:var(--fs-sm);font-weight:600;margin-bottom:var(--s3);line-height:1.45}
+
+  /* พรีวิวเครื่องมือ: มินิแดชบอร์ด + แถบ */
+  .tool{border:var(--bd);border-radius:8px;overflow:hidden;background:#fff}
+  .tnav{display:flex;align-items:center;padding:8px 11px;background:var(--ink);color:#fff}
+  .tnav b{font-family:"Bai Jamjuree";font-size:12.5px}
+  .tnav span{margin-left:auto;font-size:11px;color:var(--on-deep)}
+  .tstats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:10px 11px 6px}
+  .tstats div{border:var(--bd);border-radius:6px;padding:6px 7px;text-align:center}
+  .tstats b{display:block;font-family:"Bai Jamjuree";font-size:14px;color:var(--jade);line-height:1.1}
+  .tstats span{font-size:9.5px;color:var(--muted)}
+  .tbars{display:flex;align-items:flex-end;gap:5px;height:34px;padding:0 11px 11px}
+  .tbars i{flex:1;background:var(--accent);border-radius:3px 3px 0 0;opacity:.85}
   .bars{display:flex;gap:6px}
   .bars button{flex:1;height:58px;border:1.5px solid var(--line);border-radius:var(--r);
     background:#fff;cursor:pointer;font-family:"Bai Jamjuree";font-size:15px;font-weight:600;
@@ -293,6 +305,34 @@
           <div class="duo">
             <a class="btn o" href="./demo/exam.html">แสดงตัวอย่าง</a>
             <a class="btn a" href="./brief.html?kind=ข้อสอบ">สอบถามความต้องการ</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- เครื่องมือ / เว็บแอปช่วยงานประจำ -->
+      <article class="opt">
+        <div class="stage">
+          <div class="tool">
+            <div class="tnav"><b>สรุปงานเดือนนี้</b><span>เวร · บันทึก · สรุป</span></div>
+            <div class="tstats">
+              <div><b>1,240</b><span>รายการ</span></div>
+              <div><b>18</b><span>เวร</span></div>
+              <div><b>96%</b><span>ครบถ้วน</span></div>
+            </div>
+            <div class="tbars"><i style="height:45%"></i><i style="height:70%"></i><i style="height:55%"></i><i style="height:90%"></i><i style="height:65%"></i><i style="height:80%"></i></div>
+          </div>
+        </div>
+        <div class="obody">
+          <h3>เว็บแอปช่วยงานประจำ</h3>
+          <p>สร้าง Web Application ตามงานที่ทำซ้ำ ๆ — ตารางเวร บันทึกข้อมูล สรุป Excel</p>
+          <ul class="feat">
+            <li>สร้างตารางเวรอัตโนมัติ ออก Excel หรือ PNG ได้</li>
+            <li>บันทึกข้อมูลผ่านหน้าเว็บ ไม่ต้องพิมพ์ลง Excel ให้ตาลาย</li>
+            <li>รวม Excel หลายชีต สรุปเป็นแดชบอร์ดและรายงาน</li>
+          </ul>
+          <div class="duo">
+            <a class="btn o" href="./demo/tools/index.html">แสดงตัวอย่าง</a>
+            <a class="btn a" href="./brief.html?kind=เครื่องมือ">สอบถามความต้องการ</a>
           </div>
         </div>
       </article>

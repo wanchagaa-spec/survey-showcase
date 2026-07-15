@@ -10,154 +10,186 @@
 <link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
+    /* ── สี (แบรนด์เดิม) ── */
     --ink:#12313A; --deep:#0A1F26; --accent:#DFA23C; --jade:#1E6E68;
     --paper:#EFF3F2; --line:#D3DCDA; --muted:#63797E;
+    --line-deep:#23444C;                 /* เส้นบนพื้นเข้ม */
+    --on-deep:#B4CBCF;                    /* ตัวอักษรรองบนพื้นเข้ม (ผ่าน AA) */
+
+    /* ── ระยะห่าง (สเกลเดียว) ── */
+    --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px; --s8:64px;
+
+    /* ── ตัวอักษร (บทบาทจำกัด) ── */
+    --fs-display:clamp(29px,5vw,44px);
+    --fs-h2:28px; --fs-h3:20px; --fs-body:17px; --fs-sm:15px;
+    --fs-label:13px; --fs-xs:12px;
+
+    /* ── รูปทรง: กล่องโครงสร้าง = เหลี่ยม, กดได้ = รัศมีเดียว, การ์ดลอย = รัศมีการ์ด ── */
+    --r:10px; --r-card:16px; --bd:1px solid var(--line);
+    --gut:24px; --maxw:1120px;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
-  body{font-family:"Sarabun",-apple-system,sans-serif;font-size:17px;line-height:1.7;
+  body{font-family:"Sarabun",-apple-system,sans-serif;font-size:var(--fs-body);line-height:1.7;
        color:var(--ink);background:var(--paper)}
   h1,h2,h3,.dp{font-family:"Bai Jamjuree","Sarabun",sans-serif}
-  .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
-  section{padding:60px 0}
-  .eyebrow{font-family:"Bai Jamjuree";font-size:12.5px;letter-spacing:.13em;
-    text-transform:uppercase;font-weight:700;color:var(--accent);margin-bottom:10px}
 
-  /* ── หัวเว็บ: สั้น กระชับ ไม่มีปุ่มแย่งความสนใจ ── */
-  .hero{background:var(--deep);color:#fff;padding:64px 0 54px;position:relative}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--gut)}
+  section{padding:var(--s8) 0}
+  .eyebrow{font-family:"Bai Jamjuree";font-size:var(--fs-label);letter-spacing:.13em;
+    text-transform:uppercase;font-weight:700;color:var(--accent);margin-bottom:var(--s2)}
+  h2{font-size:var(--fs-h2);font-weight:700;line-height:1.25}
+  .lead{color:var(--muted);margin-top:var(--s2);max-width:56ch}
+
+  /* พื้นสลับจังหวะ deep → paper → white → paper → white → deep */
+  .band{background:#fff;border-top:var(--bd);border-bottom:var(--bd)}
+
+  /* ── หัวเว็บ (พื้นเข้ม) ── */
+  .hero{background:var(--deep);color:#fff;padding:var(--s8) 0 var(--s7);position:relative}
   .hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;
     background:linear-gradient(90deg,var(--accent) 0 33%,var(--jade) 33%)}
-  .hero h1{font-size:clamp(29px,5vw,42px);line-height:1.3;max-width:17ch}
+  .hero .eyebrow{margin-bottom:var(--s3)}
+  .hero h1{font-size:var(--fs-display);line-height:1.3;max-width:18ch;font-weight:700}
   .hero h1 em{font-style:normal;color:var(--accent)}
-  .hero p{color:#A9C2C7;font-size:18px;margin-top:16px;max-width:50ch}
-  .facts{display:flex;gap:24px;flex-wrap:wrap;margin-top:30px;padding-top:22px;
-    border-top:1px solid #23444C}
-  .fact{font-size:14.5px;color:#8FA9AE}
-  .fact b{display:block;font-family:"Bai Jamjuree";font-size:16.5px;color:#fff;font-weight:600}
+  .hero p{color:var(--on-deep);font-size:18px;margin-top:var(--s4);max-width:52ch}
+  .facts{display:grid;grid-template-columns:repeat(3,1fr);margin-top:var(--s6);
+    border-top:1px solid var(--line-deep)}
+  .fact{font-size:var(--fs-sm);color:var(--on-deep);padding:var(--s5) var(--s5) 0 0}
+  .fact + .fact{border-left:1px solid var(--line-deep);padding-left:var(--s5)}
+  .fact b{display:block;font-family:"Bai Jamjuree";font-size:16.5px;color:#fff;font-weight:600;
+    margin-bottom:2px}
+  @media(max-width:640px){.facts{grid-template-columns:1fr}
+    .fact{padding:var(--s4) 0 0}.fact + .fact{border-left:none;padding-left:0;
+      border-top:1px solid var(--line-deep);margin-top:var(--s3);padding-top:var(--s4)}}
 
-  h2{font-size:27px;font-weight:700}
-  .lead{color:var(--muted);margin-top:8px;max-width:56ch}
+  /* ── ★ การตัดสินใจ 3 ทาง: การ์ดลอย 3 ใบ เมาส์ชี้แล้วเด่นขึ้นมา ── */
+  .pick .lead{margin-bottom:var(--s6)}
+  .decide{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s4)}
+  @media(max-width:900px){.decide{grid-template-columns:1fr;max-width:560px;margin:0 auto}}
 
-  /* ── ★ ตัวเลือก 3 ทาง: พระเอกของหน้า ── */
-  .pick{padding-top:52px}
-  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px}
-  @media(max-width:900px){.grid{grid-template-columns:1fr;max-width:520px;margin-left:auto;margin-right:auto}}
-
-  .opt{background:#fff;border:1.5px solid var(--line);border-radius:18px;overflow:hidden;
+  .opt{background:#fff;border:1.5px solid var(--line);border-radius:var(--r-card);overflow:hidden;
     display:flex;flex-direction:column;position:relative;
     transition:border-color .18s,box-shadow .18s,transform .18s}
-  .opt:hover{border-color:var(--jade);transform:translateY(-3px);
+  .opt:hover{border-color:var(--jade);transform:translateY(-4px);
     box-shadow:0 22px 44px -28px rgba(18,49,58,.55)}
   .opt:focus-within{border-color:var(--jade)}
 
-  .stage{background:var(--paper);border-bottom:1px solid var(--line);
-    padding:20px 18px;height:200px;display:flex;flex-direction:column;justify-content:center}
-  .obody{padding:20px 20px 22px;display:flex;flex-direction:column;flex:1}
-  .opt h3{font-size:20px;margin-bottom:6px}
-  .opt > .obody > p{font-size:15px;color:var(--muted);line-height:1.6}
-  .feat{list-style:none;margin:14px 0 20px;flex:1}
-  .feat li{font-size:14.5px;color:var(--ink);padding:5px 0 5px 24px;position:relative;
-    line-height:1.5}
-  .feat li::before{content:"";position:absolute;left:2px;top:13px;width:9px;height:9px;
+  /* เวทีพรีวิว: ใหญ่ขึ้น อ่านออก ไม่ล็อกความสูงแบบบีบ */
+  .stage{background:var(--paper);border-bottom:var(--bd);padding:var(--s5);
+    min-height:250px;display:flex;flex-direction:column;justify-content:center}
+  .obody{padding:var(--s5);display:flex;flex-direction:column;flex:1}
+  .opt h3{font-size:var(--fs-h3);margin-bottom:var(--s1)}
+  .opt > .obody > p{font-size:var(--fs-sm);color:var(--muted);line-height:1.55}
+  .feat{list-style:none;margin:var(--s4) 0 var(--s5);flex:1}
+  .feat li{font-size:14.5px;color:var(--ink);padding:5px 0 5px 24px;position:relative;line-height:1.5}
+  .feat li::before{content:"";position:absolute;left:2px;top:12px;width:8px;height:8px;
     border-radius:50%;border:2px solid var(--accent)}
 
   /* ปุ่มคู่ */
-  .duo{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2)}
   .btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;
-    padding:0 14px;border-radius:11px;border:none;cursor:pointer;text-decoration:none;
-    font-family:"Bai Jamjuree";font-size:15.5px;font-weight:600;text-align:center;
-    transition:transform .12s,background .14s,border-color .14s}
+    padding:0 var(--s4);border-radius:var(--r);border:none;cursor:pointer;text-decoration:none;
+    font-family:"Bai Jamjuree";font-size:var(--fs-sm);font-weight:600;text-align:center;
+    transition:transform .12s,background .14s,border-color .14s,color .14s}
   .btn:active{transform:translateY(1px)}
   .btn.p{background:var(--ink);color:#fff}
   .btn.p:hover{background:#1B4450}
-  .btn.a{background:var(--accent);color:#2A1E08}
+  .btn.a{background:var(--accent);color:#2A1E08}   /* amber = การกระทำหลักเท่านั้น */
   .btn.a:hover{background:#EBB253}
   .btn.o{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
   .btn.o:hover{border-color:var(--jade);color:var(--jade)}
   .btn:focus-visible{outline:3px solid var(--jade);outline-offset:3px}
 
-  /* ── ตัวอย่างย่อในการ์ด ── */
+  /* ── พรีวิวย่อในการ์ด (ตัวอักษรอ่านออกทุกจุด ≥12px) ── */
   /* เว็บไซต์ */
-  .site{border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#fff}
-  .snav{display:flex;align-items:center;padding:9px 12px;background:var(--ink);color:#fff}
-  .snav b{font-family:"Bai Jamjuree";font-size:12px}
-  .snav span{margin-left:auto;display:flex;gap:9px;font-size:10px;color:#A9C2C7}
-  .shero{padding:14px 12px;background:#FBF4E7}
-  .shero h4{font-family:"Bai Jamjuree";font-size:15px;margin-bottom:3px}
-  .shero p{font-size:11px;color:var(--muted);margin-bottom:9px}
+  .site{border:var(--bd);border-radius:var(--r);overflow:hidden;background:#fff}
+  .snav{display:flex;align-items:center;padding:10px 13px;background:var(--ink);color:#fff}
+  .snav b{font-family:"Bai Jamjuree";font-size:13px}
+  .snav span{margin-left:auto;font-size:11.5px;color:var(--on-deep)}
+  .shero{padding:15px 13px;background:#FBF4E7}
+  .shero h4{font-family:"Bai Jamjuree";font-size:16px;margin-bottom:3px}
+  .shero p{font-size:12.5px;color:var(--muted);margin-bottom:11px}
   .shero i{font-style:normal;display:inline-block;background:var(--accent);color:#2A1E08;
-    font-size:11px;font-weight:700;padding:5px 12px;border-radius:6px}
-  .sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:10px 12px 12px}
-  .sgrid div{border:1px solid var(--line);border-radius:6px;padding:7px;font-size:9.5px;
-    color:var(--muted);line-height:1.35}
-  .sgrid b{display:block;font-size:10.5px;color:var(--ink);margin-bottom:2px}
+    font-size:12px;font-weight:700;padding:6px 13px;border-radius:8px}
+  .sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;padding:11px 13px 13px}
+  .sgrid div{border:var(--bd);border-radius:8px;padding:8px;font-size:11.5px;color:var(--muted);
+    line-height:1.4}
+  .sgrid b{display:block;font-size:12.5px;color:var(--ink);margin-bottom:2px}
 
   /* แบบสอบถาม */
-  .mini-q{font-size:14.5px;font-weight:600;margin-bottom:13px;line-height:1.45}
-  .bars{display:flex;gap:5px}
-  .bars button{flex:1;height:54px;border:1.5px solid var(--line);border-radius:9px;
+  .mini-q{font-size:var(--fs-sm);font-weight:600;margin-bottom:var(--s3);line-height:1.45}
+  .bars{display:flex;gap:6px}
+  .bars button{flex:1;height:58px;border:1.5px solid var(--line);border-radius:var(--r);
     background:#fff;cursor:pointer;font-family:"Bai Jamjuree";font-size:15px;font-weight:600;
     color:var(--muted);position:relative;overflow:hidden;display:flex;align-items:flex-end;
-    justify-content:center;padding-bottom:5px;transition:color .18s,border-color .18s}
+    justify-content:center;padding-bottom:6px;transition:color .18s,border-color .18s}
   .bars button::before{content:"";position:absolute;left:0;right:0;bottom:0;height:var(--h,0);
     background:var(--accent);transition:height .3s cubic-bezier(.34,1.25,.64,1)}
   .bars button span{position:relative;z-index:1}
   .bars button.on{color:var(--ink);border-color:var(--accent)}
-  .ends{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);
-    margin-top:7px}
+  .ends{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:8px}
 
   /* ข้อสอบ */
   .ebar{display:flex;justify-content:space-between;align-items:center;background:var(--ink);
-    color:#fff;border-radius:9px;padding:8px 12px;margin-bottom:12px}
-  .ebar span{font-size:12.5px;color:#A9C2C7}
-  .ebar b{font-family:"Bai Jamjuree";font-size:17px;color:var(--accent);
-    font-variant-numeric:tabular-nums}
-  .eopt{display:flex;align-items:center;gap:9px;border:1.5px solid var(--line);
-    border-radius:9px;padding:9px 11px;font-size:14px;background:#fff;margin-bottom:6px}
+    color:#fff;border-radius:var(--r);padding:9px 13px;margin-bottom:var(--s3)}
+  .ebar span{font-size:12.5px;color:var(--on-deep)}
+  .ebar b{font-family:"Bai Jamjuree";font-size:17px;color:var(--accent);font-variant-numeric:tabular-nums}
+  .eopt{display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);
+    border-radius:var(--r);padding:10px 12px;font-size:14.5px;background:#fff;margin-bottom:7px}
   .eopt.on{border-color:var(--jade);background:#EEF5F4}
-  .eopt i{flex:none;width:23px;height:23px;border-radius:50%;border:2px solid var(--line);
+  .eopt i{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--line);
     display:grid;place-items:center;font-style:normal;font-family:"Bai Jamjuree";
     font-size:11px;font-weight:700;color:var(--muted)}
   .eopt.on i{background:var(--jade);border-color:var(--jade);color:#fff}
 
-  /* ── ตาราง ── */
-  .band{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-  table{width:100%;border-collapse:collapse;margin-top:26px;font-size:16px}
-  th,td{padding:13px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  /* ── ตารางเทียบ: หลักฐานกลางของหน้า, amber เน้นคอลัมน์ "งานที่ทำให้" ── */
+  table{width:100%;border-collapse:collapse;margin-top:var(--s5);font-size:16px}
+  th,td{padding:14px 14px;text-align:left;border-bottom:var(--bd);vertical-align:top}
   th{font-family:"Bai Jamjuree";font-size:14px;font-weight:600;color:var(--muted)}
-  th:first-child{width:38%}
+  th:first-child{width:34%}
+  thead th.win{color:var(--ink);box-shadow:inset 0 -3px 0 var(--accent)}
+  td.win-col{background:#FCF7EC}
   td.y{color:var(--jade);font-weight:600}
   td.n{color:var(--muted)}
-  tr:last-child td{border-bottom:none}
-  @media(max-width:640px){table{font-size:14.5px}th,td{padding:11px 8px}}
+  tbody tr:last-child td{border-bottom:none}
+  @media(max-width:640px){table{font-size:14.5px}th,td{padding:11px 9px}th:first-child{width:32%}}
 
-  /* ── ขั้นตอน ── */
-  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:30px}
+  /* ── ขั้นตอน: แถบตัวเลขคั่นเส้น (ไม่ใช่การ์ดกลม) ── */
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);margin-top:var(--s6);
+    border:var(--bd);background:#fff}
   @media(max-width:880px){.steps{grid-template-columns:1fr 1fr}}
   @media(max-width:520px){.steps{grid-template-columns:1fr}}
-  .step{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px}
-  .step b{font-family:"Bai Jamjuree";font-size:12px;color:var(--accent);
-    border:1.5px solid var(--accent);border-radius:20px;padding:2px 9px;display:inline-block;
-    margin-bottom:11px}
-  .step h3{font-size:16.5px;margin-bottom:4px}
-  .step p{font-size:14.5px;color:var(--muted);line-height:1.6}
+  .step{padding:var(--s5)}
+  .step:not(:last-child){border-right:var(--bd)}
+  @media(max-width:880px){.step:nth-child(-n+2){border-bottom:var(--bd)}
+    .step:nth-child(2){border-right:none}}
+  @media(max-width:520px){.steps>.step{border-right:none;border-bottom:var(--bd)}
+    .steps>.step:last-child{border-bottom:none}}
+  .step .num{font-family:"Bai Jamjuree";font-size:30px;font-weight:700;color:var(--accent);
+    font-variant-numeric:tabular-nums;line-height:1;margin-bottom:var(--s3)}
+  .step h3{font-size:16.5px;margin-bottom:var(--s1)}
+  .step p{font-size:14.5px;color:var(--muted);line-height:1.55}
 
-  /* ── เงื่อนไข ── */
-  .terms{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:26px}
-  @media(max-width:700px){.terms{grid-template-columns:1fr}}
-  .term{background:#fff;border:1px solid var(--line);border-left:4px solid var(--jade);
-    border-radius:0 12px 12px 0;padding:16px 18px}
-  .term h3{font-size:16.5px;margin-bottom:3px}
-  .term p{font-size:15px;color:var(--muted);line-height:1.6}
+  /* ── เงื่อนไข: รายการนิยาม เส้นซ้ายเส้นเดียว ── */
+  .terms{display:grid;grid-template-columns:1fr 1fr;gap:0 var(--s7);margin-top:var(--s5)}
+  @media(max-width:700px){.terms{grid-template-columns:1fr;gap:0}}
+  .term{border-left:3px solid var(--jade);padding:var(--s3) 0 var(--s3) var(--s4);
+    border-top:var(--bd)}
+  .term:nth-child(-n+2){border-top:none}
+  @media(max-width:700px){.term:nth-child(2){border-top:var(--bd)}}
+  .term h3{font-size:16.5px;margin-bottom:2px}
+  .term p{font-size:var(--fs-sm);color:var(--muted);line-height:1.55}
 
-  /* ── ปิดท้าย ── */
+  /* ── ปิดท้าย (พื้นเข้ม) ── */
   .end{background:var(--deep);color:#fff;text-align:center}
-  .end h2{font-size:27px}
-  .end p{color:#A9C2C7;margin-top:10px;max-width:44ch;margin-left:auto;margin-right:auto}
-  .end .btn{margin-top:26px;padding:0 30px}
-  footer{background:var(--deep);color:#5F7E85;font-size:14px;text-align:center;
-    padding:26px 20px;border-top:1px solid #23444C}
-  footer a{color:#9DB6BB;text-decoration:none}
+  .end h2{font-size:var(--fs-h2)}
+  .end p{color:var(--on-deep);margin-top:var(--s3);max-width:46ch;margin-left:auto;margin-right:auto}
+  .end .cta{display:flex;gap:var(--s3);justify-content:center;flex-wrap:wrap;margin-top:var(--s6)}
+  .end .btn{padding:0 var(--s6)}
+
+  footer{background:var(--deep);color:var(--on-deep);font-size:var(--fs-sm);text-align:center;
+    padding:var(--s5) var(--gut);border-top:1px solid var(--line-deep)}
+  footer a{color:#C7DADD;text-decoration:none;font-weight:600}
   footer a:hover{color:var(--accent)}
 
   @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}
@@ -167,28 +199,29 @@
 <body>
 
 <!-- ── หัวเว็บ ── -->
-<div class="hero">
+<header class="hero">
   <div class="wrap">
     <div class="eyebrow">เว็บไซต์ · แบบสอบถาม · ข้อสอบออนไลน์</div>
     <h1>เลือกสิ่งที่ต้องการ <em>แล้วดูของจริง</em> ก่อนตัดสินใจ</h1>
-    <p>ทุกตัวอย่างกดเล่นได้จริง ไม่ต้องสมัคร ไม่ต้องผูกมัด
-       ถูกใจแล้วค่อยแจ้งความต้องการ</p>
+    <p>ทุกตัวอย่างกดเล่นได้จริง ไม่ต้องสมัคร ไม่ต้องผูกมัด ถูกใจแล้วค่อยแจ้งความต้องการ</p>
     <div class="facts">
       <div class="fact"><b>ไม่มีค่ารายเดือน</b>ใช้บัญชี Google ของท่านเอง</div>
       <div class="fact"><b>ใช้ได้บนมือถือ</b>สแกน QR แล้วใช้ได้เลย</div>
       <div class="fact"><b>แก้ฟรี 3 ครั้ง</b>หลังส่งมอบงาน</div>
     </div>
   </div>
-</div>
+</header>
 
-<!-- ── ★ ตัวเลือก 3 ทาง ── -->
+<main>
+
+<!-- ── ★ การตัดสินใจ 3 ทาง ── -->
 <section class="pick" id="pick">
   <div class="wrap">
     <div class="eyebrow">เริ่มต้นที่นี่</div>
     <h2>ต้องการทำแบบไหน</h2>
     <p class="lead">เลือกได้มากกว่าหนึ่งอย่าง เช่น ทำเว็บหน่วยงานพร้อมแบบประเมินความพึงพอใจในตัว</p>
 
-    <div class="grid">
+    <div class="decide">
 
       <!-- เว็บไซต์ -->
       <article class="opt">
@@ -275,25 +308,29 @@
     <h2>ต่างจาก Google Forms อย่างไร</h2>
     <p class="lead">Google Forms ฟรีและใช้ได้ดีในหลายงาน นี่คือจุดที่มันทำไม่ได้</p>
     <table>
-      <tr><th></th><th>Google Forms</th><th>งานที่ทำให้</th></tr>
-      <tr><td>หน้าตาและสีขององค์กร</td>
-        <td class="n">ปรับได้จำกัด</td>
-        <td class="y">ออกแบบตามอัตลักษณ์หน่วยงาน</td></tr>
-      <tr><td>ตรวจข้อสอบ</td>
-        <td class="n">ทำได้ แต่เฉลยอยู่ในฟอร์ม</td>
-        <td class="y">เฉลยเก็บฝั่งเซิร์ฟเวอร์ เปิดดูโค้ดไม่เห็น</td></tr>
-      <tr><td>จับเวลาทำข้อสอบ</td>
-        <td class="n">ไม่มี</td>
-        <td class="y">นับถอยหลัง หมดเวลาส่งอัตโนมัติ</td></tr>
-      <tr><td>เกียรติบัตร</td>
-        <td class="n">ต้องพิมพ์เองทีละใบ</td>
-        <td class="y">สร้างอัตโนมัติเมื่อผ่านเกณฑ์</td></tr>
-      <tr><td>เว็บไซต์หลายหน้า</td>
-        <td class="n">ทำไม่ได้</td>
-        <td class="y">เมนู แผนที่ สินค้า ข่าวสาร ครบ</td></tr>
-      <tr><td>ค่าใช้จ่าย</td>
-        <td class="y">ฟรี</td>
-        <td class="n">จ่ายครั้งเดียว ไม่มีรายเดือน</td></tr>
+      <thead>
+        <tr><th scope="col"></th><th scope="col">Google Forms</th><th scope="col" class="win">งานที่ทำให้</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">หน้าตาและสีขององค์กร</th>
+          <td class="n">ปรับได้จำกัด</td>
+          <td class="win-col y">ออกแบบตามอัตลักษณ์หน่วยงาน</td></tr>
+        <tr><th scope="row">ตรวจข้อสอบ</th>
+          <td class="n">ทำได้ แต่เฉลยอยู่ในฟอร์ม</td>
+          <td class="win-col y">เฉลยเก็บฝั่งเซิร์ฟเวอร์ เปิดดูโค้ดไม่เห็น</td></tr>
+        <tr><th scope="row">จับเวลาทำข้อสอบ</th>
+          <td class="n">ไม่มี</td>
+          <td class="win-col y">นับถอยหลัง หมดเวลาส่งอัตโนมัติ</td></tr>
+        <tr><th scope="row">เกียรติบัตร</th>
+          <td class="n">ต้องพิมพ์เองทีละใบ</td>
+          <td class="win-col y">สร้างอัตโนมัติเมื่อผ่านเกณฑ์</td></tr>
+        <tr><th scope="row">เว็บไซต์หลายหน้า</th>
+          <td class="n">ทำไม่ได้</td>
+          <td class="win-col y">เมนู แผนที่ สินค้า ข่าวสาร ครบ</td></tr>
+        <tr><th scope="row">ค่าใช้จ่าย</th>
+          <td class="y">ฟรี</td>
+          <td class="win-col n">จ่ายครั้งเดียว ไม่มีรายเดือน</td></tr>
+      </tbody>
     </table>
   </div>
 </section>
@@ -304,13 +341,13 @@
     <div class="eyebrow">ขั้นตอน</div>
     <h2>จากคุยกันถึงใช้งานจริง</h2>
     <div class="steps">
-      <div class="step"><b>ขั้นที่ 1</b><h3>กรอกความต้องการ</h3>
+      <div class="step"><div class="num">01</div><h3>กรอกความต้องการ</h3>
         <p>ใช้เวลา 5 นาที เลือกดีไซน์และเห็นขอบเขตงานพร้อมเวลาประเมินทันที</p></div>
-      <div class="step"><b>ขั้นที่ 2</b><h3>ยืนยันขอบเขต</h3>
+      <div class="step"><div class="num">02</div><h3>ยืนยันขอบเขต</h3>
         <p>สรุปสิ่งที่จะได้และราคา ตกลงให้ชัดก่อนเริ่มลงมือ</p></div>
-      <div class="step"><b>ขั้นที่ 3</b><h3>ส่งตัวอย่างให้ลอง</h3>
+      <div class="step"><div class="num">03</div><h3>ส่งตัวอย่างให้ลอง</h3>
         <p>ได้ลิงก์ทดลองใช้จริง ปรับแก้ก่อนเปิดใช้งานจริง</p></div>
-      <div class="step"><b>ขั้นที่ 4</b><h3>ส่งมอบ</h3>
+      <div class="step"><div class="num">04</div><h3>ส่งมอบ</h3>
         <p>ติดตั้งบนบัญชีของท่าน พร้อม QR code และคู่มือใช้งาน</p></div>
     </div>
   </div>
@@ -340,9 +377,14 @@
     <div class="eyebrow">ยังไม่แน่ใจ</div>
     <h2>เลือกไม่ถูก ทักมาถามก่อนได้</h2>
     <p>บอกแค่ว่าอยากทำอะไร เดี๋ยวช่วยดูให้ว่าแบบไหนเหมาะและคุ้มที่สุด</p>
-    <a class="btn a" href="#pick">กลับไปดูตัวเลือก</a>
+    <div class="cta">
+      <a class="btn a" href="./brief.html">กรอกความต้องการ</a>
+      <a class="btn o" href="#pick">กลับไปดูตัวเลือก</a>
+    </div>
   </div>
 </section>
+
+</main>
 
 <footer>
   ติดต่อ · LINE: <a href="#">********</a> · โทร <a href="tel:0000000000">0X-XXX-XXXX</a>

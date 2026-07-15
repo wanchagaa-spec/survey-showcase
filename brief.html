@@ -51,8 +51,8 @@
   .stepnum{font-family:"Bai Jamjuree";font-size:var(--fs-xs);letter-spacing:.1em;font-weight:700;
     color:var(--muted);text-transform:uppercase}
   h2.q{font-size:var(--fs-h2);font-weight:700;margin:var(--s1) 0 var(--s5)}
-  .pick3{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s3)}
-  @media(max-width:760px){.pick3{grid-template-columns:1fr}}
+  .pick3{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--s3)}
+  @media(max-width:620px){.pick3{grid-template-columns:1fr}}
   .kind{position:relative;display:flex;flex-direction:column;background:#fff;
     border:1.5px solid var(--line);border-radius:var(--r);overflow:hidden;cursor:pointer;
     transition:border-color .16s,box-shadow .16s,transform .16s}
@@ -99,6 +99,16 @@
   .eopt i{flex:none;width:20px;height:20px;border-radius:50%;border:2px solid var(--line);display:grid;
     place-items:center;font-style:normal;font-family:"Bai Jamjuree";font-size:10px;font-weight:700;color:var(--muted)}
   .eopt.on i{background:var(--jade);border-color:var(--jade);color:#fff}
+  .tool{border:var(--bd);border-radius:8px;overflow:hidden;background:#fff}
+  .tnav{display:flex;align-items:center;padding:7px 10px;background:var(--ink);color:#fff}
+  .tnav b{font-family:"Bai Jamjuree";font-size:12px}
+  .tnav span{margin-left:auto;font-size:10.5px;color:var(--on-deep)}
+  .tstats{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;padding:9px 10px 5px}
+  .tstats div{border:var(--bd);border-radius:6px;padding:5px;text-align:center}
+  .tstats b{display:block;font-family:"Bai Jamjuree";font-size:13px;color:var(--jade);line-height:1.1}
+  .tstats span{font-size:9px;color:var(--muted)}
+  .tbars{display:flex;align-items:flex-end;gap:4px;height:30px;padding:0 10px 10px}
+  .tbars i{flex:1;background:var(--accent);border-radius:3px 3px 0 0;opacity:.85}
 
   /* ── fieldset แบบเลดเจอร์ ── */
   fieldset{border:var(--bd);background:#fff;margin-top:var(--s5);padding:0}
@@ -318,6 +328,23 @@
             </div>
             <div class="kbody"><span class="ktick"></span><div>
               <h3>ข้อสอบ / แบบทดสอบ</h3><p>ตรวจอัตโนมัติ ออกเกียรติบัตรได้</p></div></div>
+          </label>
+
+          <label class="kind">
+            <input type="radio" name="kind" value="เครื่องมือ">
+            <div class="kstage">
+              <div class="tool">
+                <div class="tnav"><b>สรุปงานเดือนนี้</b><span>เวร · บันทึก · สรุป</span></div>
+                <div class="tstats">
+                  <div><b>1,240</b><span>รายการ</span></div>
+                  <div><b>18</b><span>เวร</span></div>
+                  <div><b>96%</b><span>ครบ</span></div>
+                </div>
+                <div class="tbars"><i style="height:45%"></i><i style="height:70%"></i><i style="height:55%"></i><i style="height:90%"></i><i style="height:65%"></i><i style="height:80%"></i></div>
+              </div>
+            </div>
+            <div class="kbody"><span class="ktick"></span><div>
+              <h3>เว็บแอปช่วยงานประจำ</h3><p>ตารางเวร บันทึกข้อมูล สรุป Excel</p></div></div>
           </label>
         </div>
       </section>
@@ -762,6 +789,31 @@
         </div>
       </fieldset>
 
+      <!-- ═══ เครื่องมือ / เว็บแอปช่วยงานประจำ ═══ -->
+      <fieldset class="only" data-only="เครื่องมือ" hidden>
+        <legend><span class="ix">T</span><h2>รายละเอียดเครื่องมือ</h2><span class="badge">เว็บแอป</span></legend>
+        <div class="fs-body">
+          <div class="f">
+            <label for="toolNeed">1. ต้องการเครื่องมือช่วยอะไร <span class="req">*</span></label>
+            <div class="hint">อยากได้เว็บแอปทำอะไร เช่น สร้างตารางเวรอัตโนมัติ / หน้าบันทึกข้อมูลแทนพิมพ์ Excel / สรุป Excel หลายไฟล์เป็นแดชบอร์ด</div>
+            <textarea id="toolNeed" name="toolNeed" required placeholder="อธิบายสั้น ๆ ว่าต้องการเครื่องมือแบบไหน"></textarea>
+          </div>
+          <div class="f">
+            <label for="toolProblem">2. ปัญหาตอนนี้คืออะไร <span class="req">*</span></label>
+            <div class="hint">ตอนนี้ทำงานนี้ด้วยวิธีไหน แล้วติดขัดตรงไหน เสียเวลาช่วงใด</div>
+            <textarea id="toolProblem" name="toolProblem" required placeholder="เช่น พิมพ์ตารางเวรเองทุกเดือน แก้ทีชนกันทั้งตาราง"></textarea>
+          </div>
+          <div class="f">
+            <label for="toolOutcome">3. ผลลัพธ์ที่ต้องการคืออะไร <span class="req">*</span></label>
+            <div class="hint">อยากได้อะไรออกมา เช่น กดปุ่มเดียวได้ตารางทั้งเดือน / ออกไฟล์ Excel ส่งหัวหน้าได้เลย</div>
+            <textarea id="toolOutcome" name="toolOutcome" required placeholder="บอกผลลัพธ์ที่อยากได้เมื่อใช้เครื่องมือนี้"></textarea>
+          </div>
+          <div class="f">
+            <div class="note">ราคาและเวลาของเครื่องมือ<b>ขึ้นกับความซับซ้อนของงาน</b> อ่านคำตอบแล้วจะประเมินและแจ้งกลับ ถ้ามีไฟล์ Excel ตัวอย่างส่งทางไลน์เพิ่มได้ จะช่วยประเมินได้แม่นขึ้น</div>
+          </div>
+        </div>
+      </fieldset>
+
       <!-- ═══ ดีไซน์ (ร่วม) ═══ -->
       <fieldset class="only" data-only="เว็บไซต์ แบบสอบถาม ข้อสอบ" hidden>
         <legend><span class="ix">D</span><h2>ดีไซน์และหน้าตา</h2></legend>
@@ -897,21 +949,21 @@
       </fieldset>
 
       <!-- ═══ ข้อมูลติดต่อ & เงื่อนไข (ร่วม) ═══ -->
-      <fieldset class="only" data-only="เว็บไซต์ แบบสอบถาม ข้อสอบ" hidden>
+      <fieldset class="only" data-only="เว็บไซต์ แบบสอบถาม ข้อสอบ เครื่องมือ" hidden>
         <legend><span class="ix">C</span><h2>ติดต่อและเงื่อนไข</h2></legend>
         <div class="fs-body">
           <div class="f">
             <div class="row">
               <div><label for="orgName">ชื่อหน่วยงาน / ร้าน <span class="req">*</span></label>
-                <input type="text" id="orgName" name="orgName" placeholder="เช่น โรงพยาบาลโพนทราย"></div>
+                <input type="text" id="orgName" name="orgName" required placeholder="เช่น โรงพยาบาลโพนทราย"></div>
               <div><label for="contactName">ชื่อผู้ประสานงาน <span class="req">*</span></label>
-                <input type="text" id="contactName" name="contactName" placeholder="ชื่อ–สกุล"></div>
+                <input type="text" id="contactName" name="contactName" required placeholder="ชื่อ–สกุล"></div>
             </div>
           </div>
           <div class="f">
             <div class="row">
               <div><label for="contactPhone">เบอร์โทร / LINE <span class="req">*</span></label>
-                <input type="tel" id="contactPhone" name="contactPhone" placeholder="08x-xxx-xxxx หรือ LINE ID"></div>
+                <input type="tel" id="contactPhone" name="contactPhone" required placeholder="08x-xxx-xxxx หรือ LINE ID"></div>
               <div><label for="deadline">อยากได้ภายในเมื่อไหร่</label>
                 <input type="date" id="deadline" name="deadline"></div>
             </div>
@@ -1041,8 +1093,21 @@
   function recompute(){
     const k=kind();
     $('#svKind').textContent = k||'—';
-    // ขนาด
     const rowScale=$('#rowScale');
+    const sub=document.querySelector('.est .sub');
+
+    if(k==='เครื่องมือ'){
+      rowScale.hidden=true;
+      $('#addonList').innerHTML='<li class="empty" style="padding-left:0">ประเมินหลังอ่านคำตอบ</li>';
+      $('#estDays').style.fontSize='18px'; $('#estDays').textContent='ตามความซับซ้อน';
+      $('#estDaysM').textContent='ตามความซับซ้อน';
+      if(sub) sub.textContent='ราคา/เวลาแจ้งกลับหลังประเมิน';
+      return;
+    }
+    $('#estDays').style.fontSize='';
+    if(sub) sub.textContent='วันทำการ นับหลังได้เนื้อหาครบ';
+
+    // ขนาด
     if(k==='เว็บไซต์'){ rowScale.hidden=false; $('#svScaleK').textContent='จำนวนหน้า';
       $('#svScale').textContent = ($$('[name=pages]:checked').length||0)+' หน้า'; }
     else if(k==='แบบสอบถาม'){ rowScale.hidden=false; $('#svScaleK').textContent='จำนวนคำถาม';
@@ -1157,6 +1222,18 @@
 
   async function submit(){
     if(!kind()){ say('กรุณาเลือกประเภทงานก่อน',true); window.scrollTo({top:0,behavior:'smooth'}); return; }
+    // ตรวจข้อบังคับที่มองเห็นอยู่ (radio/text/number/textarea ที่มี required และอยู่ใน fieldset ที่โชว์)
+    const missing=$$('[required]',form).filter(el=>{
+      if(el.closest('fieldset')?.hidden) return false;
+      if(el.type==='radio') return !form.querySelector('[name="'+el.name+'"]:checked');
+      return !el.value.trim();
+    });
+    if(missing.length){
+      say('ยังไม่ได้ตอบ '+new Set(missing.map(e=>e.name)).size+' ข้อที่จำเป็น',true);
+      missing[0].scrollIntoView({behavior:'smooth',block:'center'});
+      try{missing[0].focus({preventScroll:true});}catch(e){}
+      return;
+    }
     if(!loginOk()){
       say('กรุณาลงชื่อเข้าใช้ด้วยบัญชี Google ก่อน',true);
       $('#gbox').scrollIntoView({behavior:'smooth',block:'center'}); return;

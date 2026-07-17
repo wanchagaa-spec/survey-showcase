@@ -108,7 +108,11 @@
   function productCard(p){
     const img = p.image
       ? '<img src="' + esc(p.image) + '" alt="' + esc(p.name) + '" loading="lazy">'
-      : "<span>ยังไม่มีรูป</span>";
+      : '<span class="noimg"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">' +
+        '<rect x="3" y="5" width="18" height="14" rx="2.5"></rect>' +
+        '<circle cx="8.5" cy="10" r="1.5"></circle>' +
+        '<path d="M21 16l-5.5-5.5a2 2 0 0 0-2.8 0L5 18"></path>' +
+        '</svg><span>ยังไม่มีรูป</span></span>';
     const line = (SITE.contact && SITE.contact.lineUrl) || "";
     return '<article class="card">' +
       '<div class="thumb">' + img + "</div><div class=\"cbody\">" +

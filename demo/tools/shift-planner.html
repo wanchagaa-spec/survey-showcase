@@ -151,180 +151,6 @@
   .hcov .lv2{background:#e3f3e9;color:#1e7a45}
   .hclosed{flex:1;display:flex;align-items:center;justify-content:center;color:#8b97a8;font-weight:700;min-height:46px}
 
-  /* ---------- ไทม์ไลน์แนวนอน ---------- */
-function packLanes(shifts){
-  const lanes=[];
-  shifts.forEach(s=>{
-    let done=false;
-    for(const ln of lanes){ if(toMin(ln[ln.length-1].end)<=toMin(s.start)){ln.push(s);done=true;break;} }
-    if(!done)lanes.push([s]);
-  });
-  return lanes;
-}
-function renderHTimeline(){
-  const wk=week(),hrs=hours(),o=O(),c=C(),span=c-o;
-  const v=$('#view');v.innerHTML='';
-  const box=document.createElement('div');box.className='htl';
-  const inn=document.createElement('div');inn.className='hin';
-
-  const hd=document.createElement('div');hd.className='hhdr';
-  hd.innerHTML='<div class="dc">วัน / วันที่</div>';
-  const hs=document.createElement('div');hs.className='hs';
-  hrs.forEach((m,i)=>{const h=document.createElement('div');h.className='h';
-    h.textContent=(i===hrs.length-1)?`${fmt(m)}–${S.close}`:fmt(m);hs.appendChild(h);});
-  hd.appendChild(hs);inn.appendChild(hd);
-
-  wk.forEach(d=>{
-    const dk=key(d),closed=isClosed(d);
-    const row=document.createElement('div');row.className='hrow'+(closed?' closed':'');
-    const dc=document.createElement('div');dc.className='dc';
-    dc.innerHTML=`<div class="n">${TH_DAYS[d.getDay()]}</div><div class="d">(${beShort(d)})</div>`;
-    const bs=document.createElement('div');bs.className='b noprint';
-    const tg=document.createElement('button');tg.className=closed?'st-off':'st-on';tg.textContent=closed?'ปิด':'เปิด';
-    tg.onclick=()=>{S.closedDates=S.closedDates.includes(dk)?S.closedDates.filter(x=>x!==dk):[...S.closedDates,dk];save();render();};
-    bs.appendChild(tg);
-    if(!closed){
-      const cb=document.createElement('button');cb.textContent='คัดลอก';cb.onclick=()=>openCopy(dk);bs.appendChild(cb);
-    }
-    dc.appendChild(bs);row.appendChild(dc);
-
-    if(closed){
-      const w=document.createElement('div');w.className='hclosed';w.textContent='ร้านหยุด';
-      row.appendChild(w);inn.appendChild(row);return;
-    }
-
-    const lanes=document.createElement('div');lanes.className='hlanes';lanes.dataset.date=dk;
-    const g=document.createElement('div');g.className='hgrid';
-    hrs.forEach((m,i)=>{
-      if(i){const l=document.createElement('div');l.className='v';l.style.left=((m-o)/span*100)+'%';g.appendChild(l);}
-      const hf=document.createElement('div');hf.className='v vh';hf.style.left=((m+30-o)/span*100)+'%';g.appendChild(hf);
-    });
-    lanes.appendChild(g);
-
-    const packed=packLanes(dayShifts(dk));
-    packed.forEach(ln=>{
-      const lane=document.createElement('div');lane.className='hlane';
-      ln.forEach(s=>{
-        const emp=empOf(s.empId);if(!emp)return;
-        const dur=toMin(s.end)-toMin(s.start);
-        const b=document.createElement('div');b.className='hbar'+(dur/span<0.13?' narrow':'');
-        b.dataset.id=s.id;
-        b.style.left=((toMin(s.start)-o)/span*100)+'%';
-        b.style.width=(dur/span*100)+'%';
-        b.style.background=emp.color;b.style.color=textOn(emp.color);
-        b.innerHTML=`<div class="hd l"></div><b>${emp.name}</b><em>${s.start}-${s.end}</em><div class="hd r"></div>`;
-        lane.appendChild(b);
-      });
-      lanes.appendChild(lane);
-    });
-    const add=document.createElement('div');add.className='hlane add noprint';
-    add.textContent=selEmpId?`ลากตรงนี้เพื่อลงเวรให้ ${empOf(selEmpId).name}`:'เลือกชื่อพนักงานก่อน แล้วลากตรงนี้';
-    lanes.appendChild(add);
-
-    row.appendChild(lanes);
-    attachHDrag(lanes,dk,packed.length);
-    inn.appendChild(row);
-  });
-  box.appendChild(inn);v.appendChild(box);
-
-  $('#viewHint').textContent='ลากในแถบเส้นประเพื่อเพิ่มคน · ลากแถบสีเพื่อย้าย · ลากขอบซ้าย/ขวาเพื่อยืด-หด';
-}
-function attachHDrag(lanes,dk,laneCount){
-  let mode=null,cur=null,ghost=null,startX=0,orig=null,moved=false;
-  const o=O(),c=C(),span=c-o;
-  const xToMin=x=>{const w=lanes.getBoundingClientRect().width;return clampT(snap(o+x/w*span));};
-
-  lanes.addEventListener('pointerdown',ev=>{
-    const bar=ev.target.closest('.hbar');
-    const r=lanes.getBoundingClientRect();
-    startX=ev.clientX-r.left;moved=false;
-    if(bar){
-      const s=S.shifts.find(x=>x.id===bar.dataset.id);if(!s)return;
-      cur={bar,s};orig={st:toMin(s.start),en:toMin(s.end)};
-      mode=ev.target.classList.contains('hd')?(ev.target.classList.contains('l')?'left':'right'):'move';
-      bar.classList.add('dragging');
-    }else{
-      if(!selEmpId)return toast('เลือกชื่อพนักงานก่อน');
-      mode='new';
-      const m=xToMin(startX);
-      ghost=document.createElement('div');ghost.className='hghost';
-      ghost.style.top=(5+laneCount*35)+'px';ghost.style.height='32px';
-      ghost.style.left=((m-o)/span*100)+'%';ghost.style.width='0%';
-      ghost.dataset.a=m;ghost.dataset.lo=m;ghost.dataset.hi=m;
-      lanes.appendChild(ghost);
-    }
-    lanes.setPointerCapture(ev.pointerId);
-  });
-  lanes.addEventListener('pointermove',ev=>{
-    if(!mode)return;
-    const r=lanes.getBoundingClientRect();
-    const x=ev.clientX-r.left;
-    if(Math.abs(x-startX)>3)moved=true;
-    if(mode==='new'){
-      const a=+ghost.dataset.a,b=xToMin(x);
-      const st=Math.min(a,b),en=Math.max(a,b);
-      ghost.style.left=((st-o)/span*100)+'%';
-      ghost.style.width=((en-st)/span*100)+'%';
-      ghost.textContent=en>st?`${fmt(st)}-${fmt(en)}`:'';
-      ghost.dataset.lo=st;ghost.dataset.hi=en;
-      return;
-    }
-    const w=r.width;
-    const dm=snap((x-startX)/w*span);
-    let st=orig.st,en=orig.en;
-    if(mode==='move'){const dur=orig.en-orig.st;st=clampT(orig.st+dm);en=st+dur;if(en>c){en=c;st=en-dur;}}
-    else if(mode==='left'){st=clampT(Math.min(orig.en-SNAP,orig.st+dm));}
-    else{en=clampT(Math.max(orig.st+SNAP,orig.en+dm));}
-    cur.s.start=fmt(st);cur.s.end=fmt(en);
-    cur.bar.style.left=((st-o)/span*100)+'%';
-    cur.bar.style.width=((en-st)/span*100)+'%';
-    cur.bar.querySelector('em').textContent=`${cur.s.start}-${cur.s.end}`;
-  });
-  const fin=ev=>{
-    if(!mode)return;
-    if(mode==='new'){
-      const st=+ghost.dataset.lo,en=+ghost.dataset.hi;
-      ghost.remove();ghost=null;
-      if(moved&&en-st>=SNAP){S.shifts.push({id:uid(),empId:selEmpId,date:dk,start:fmt(st),end:fmt(en)});save();render();}
-    }else{
-      cur.bar.classList.remove('dragging');
-      if(!moved)openEdit(cur.s.id); else {save();render();}
-    }
-    mode=null;cur=null;
-    try{lanes.releasePointerCapture(ev.pointerId);}catch(e){}
-  };
-  lanes.addEventListener('pointerup',fin);
-  lanes.addEventListener('pointercancel',fin);
-}
-
-/* ---------- คัดลอกวัน ---------- */
-let cpFrom=null;
-function openCopy(dk){
-  const ss=dayShifts(dk);
-  if(!ss.length)return toast('วันนี้ยังไม่มีเวรให้คัดลอก');
-  cpFrom=dk;
-  const d=new Date(dk+'T00:00:00');
-  $('#cpFrom').textContent=`จาก ${TH_DAYS[d.getDay()]} ${beShort(d)} — ${ss.length} เวร: `+
-    ss.map(s=>`${empOf(s.empId)?.name||'?'} ${s.start}-${s.end}`).join(' · ');
-  const dp=$('#cpDays');dp.innerHTML='';
-  week().forEach(t=>{
-    const tk=key(t),closed=isClosed(t),same=tk===dk;
-    const l=document.createElement('label');if(closed||same)l.className='off';
-    l.innerHTML=`<input type="checkbox" value="${tk}" ${closed||same?'disabled':''}> ${TH_SHORT[t.getDay()]} ${t.getDate()}`;
-    dp.appendChild(l);
-  });
-  $('#cp').classList.add('on');
-}
-$('#cpCancel').onclick=()=>$('#cp').classList.remove('on');
-$('#cp').onclick=e=>{if(e.target.id==='cp')$('#cp').classList.remove('on');};
-$('#cpOk').onclick=()=>{
-  const days=[...document.querySelectorAll('#cpDays input:checked')].map(i=>i.value);
-  if(!days.length)return toast('เลือกวันปลายทางอย่างน้อย 1 วัน');
-  const src=dayShifts(cpFrom);
-  days.forEach(t=>src.forEach(s=>S.shifts.push({id:uid(),empId:s.empId,date:t,start:s.start,end:s.end})));
-  $('#cp').classList.remove('on');save();render();toast(`คัดลอกไป ${days.length} วันแล้ว`);
-};
-
 /* ---------- ใบเวรพนักงาน ---------- */
   .grid{border:1px solid var(--line2);border-radius:8px;overflow:auto;background:#fff}
   .grid table{border-collapse:collapse;width:100%;min-width:520px}
@@ -381,6 +207,7 @@ $('#cpOk').onclick=()=>{
   }
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
+<style>#__demoBar *{box-sizing:border-box} body{padding-bottom:70px !important}</style>
 </head>
 <body>
 <header class="top">
@@ -1252,7 +1079,6 @@ window.addEventListener('resize',()=>{ if(isMobile()!==lastM){lastM=isMobile();r
 })();
 </script>
 
-<style>#__demoBar *{box-sizing:border-box} body{padding-bottom:70px !important}</style>
 <div id="__demoBar" style="position:fixed;left:0;right:0;bottom:0;z-index:2147483000;background:#0A1F26;color:#fff;font-family:'Sarabun',sans-serif;font-size:14px;padding:10px 16px;display:flex;gap:12px;align-items:center;box-shadow:0 -8px 24px rgba(0,0,0,.28)">
 <b style="font-family:'Bai Jamjuree','Sarabun',sans-serif">ตัวอย่างสาธิต</b>
 <span style="color:#B4CBCF">ข้อมูลสมมติ · ประมวลผลในเครื่องคุณ</span>

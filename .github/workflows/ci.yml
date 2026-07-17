@@ -20,6 +20,20 @@ jobs:
           # whose codepage tables are legitimate raw control-byte string
           # literals — not an authoring bug, so it's excluded here.
           blacklist: .agents .claude summary.html
+          # exam.html/survey.html use calc()+env(safe-area-inset-bottom) for
+          # iOS safe-area padding, which is valid modern CSS but trips the
+          # bundled vnu.jar CSS checker's parser. This action passes `extra`
+          # to the shell unquoted, so: (1) no literal spaces inside a single
+          # pattern (use \s instead) or it splits into separate args, (2) no
+          # quote characters around patterns (they'd be taken literally, not
+          # stripped as shell quoting), and (3) --ignore-re must be given
+          # only once — argparse overwrites on repeated flags, it doesn't
+          # accumulate — with all patterns space-separated after it.
+          extra: >-
+            --ignore-re
+            exam\.html.*"padding":\sParse\sError
+            survey\.html.*"padding":\sParse\sError
+            survey\.html.*padding-bottom.*env\(safe-area-inset-bottom\)
 
   check-links:
     name: Check links

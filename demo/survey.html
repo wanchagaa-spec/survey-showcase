@@ -169,6 +169,7 @@ const CONFIG = {
 
   /* การ์ดคำถาม */
   .q{background:var(--surface); border:1px solid var(--line);
+     box-shadow:0 1px 2px rgba(18,49,58,.04),0 8px 20px -18px rgba(18,49,58,.18);
      border-radius:var(--r); padding:20px 18px; margin-bottom:14px}
   .q.err{border-color:var(--danger); box-shadow:0 0 0 3px rgba(178,58,46,.09)}
   .q-label{font-size:18px; font-weight:600; line-height:1.5; margin-bottom:4px}
@@ -272,7 +273,7 @@ const CONFIG = {
 <div id="app">
   <div class="bar"><i id="prog"></i></div>
   <header>
-    <img id="logo" class="hidden" alt="">
+    <img id="logo" class="hidden" alt="" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==">
     <div class="brand" id="org"></div>
     <h1 id="title"></h1>
     <p id="subtitle"></p>

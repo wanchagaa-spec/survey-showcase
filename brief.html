@@ -55,6 +55,7 @@
   @media(max-width:620px){.pick3{grid-template-columns:1fr}}
   .kind{position:relative;display:flex;flex-direction:column;background:#fff;
     border:1.5px solid var(--line);border-radius:var(--r);overflow:hidden;cursor:pointer;
+    box-shadow:0 1px 2px rgba(18,49,58,.04),0 10px 24px -20px rgba(18,49,58,.22);
     transition:border-color .16s,box-shadow .16s,transform .16s}
   .kind:hover{border-color:var(--jade);transform:translateY(-3px);
     box-shadow:0 20px 40px -28px rgba(18,49,58,.5)}
@@ -69,8 +70,8 @@
   .ktick::after{content:"";width:10px;height:10px;border-radius:50%;background:transparent;transition:.16s}
   .kind:has(input:checked) .ktick{border-color:var(--jade);background:var(--jade)}
   .kind:has(input:checked) .ktick::after{background:#fff}
-  .kbody h3{font-size:var(--fs-h3)}
-  .kbody p{font-size:var(--fs-sm);color:var(--muted);line-height:1.5;margin-top:2px}
+  .kbody .ktitle{display:block;font-size:var(--fs-h3);font-weight:700}
+  .kbody .kdesc{display:block;font-size:var(--fs-sm);color:var(--muted);line-height:1.5;margin-top:2px}
 
   /* พรีวิวย่อในการ์ด kind */
   .site{border:var(--bd);border-radius:8px;overflow:hidden;background:#fff}
@@ -78,7 +79,7 @@
   .snav b{font-family:"Bai Jamjuree";font-size:12.5px}
   .snav span{margin-left:auto;font-size:11px;color:var(--on-deep)}
   .sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:10px 11px}
-  .sgrid div{border:var(--bd);border-radius:6px;padding:7px;font-size:11px;color:var(--muted);line-height:1.35}
+  .sgrid .cell{border:var(--bd);border-radius:6px;padding:7px;font-size:11px;color:var(--muted);line-height:1.35}
   .sgrid b{display:block;font-size:12px;color:var(--ink)}
   .mini-q{font-size:13.5px;font-weight:600;margin-bottom:10px;line-height:1.4}
   .bars{display:flex;gap:5px}
@@ -104,7 +105,7 @@
   .tnav b{font-family:"Bai Jamjuree";font-size:12px}
   .tnav span{margin-left:auto;font-size:10.5px;color:var(--on-deep)}
   .tstats{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;padding:9px 10px 5px}
-  .tstats div{border:var(--bd);border-radius:6px;padding:5px;text-align:center}
+  .tstats .stat{border:var(--bd);border-radius:6px;padding:5px;text-align:center}
   .tstats b{display:block;font-family:"Bai Jamjuree";font-size:13px;color:var(--jade);line-height:1.1}
   .tstats span{font-size:9px;color:var(--muted)}
   .tbars{display:flex;align-items:flex-end;gap:4px;height:30px;padding:0 10px 10px}
@@ -297,54 +298,54 @@
         <div class="pick3">
           <label class="kind">
             <input type="radio" name="kind" value="เว็บไซต์" required>
-            <div class="kstage">
-              <div class="site">
-                <div class="snav"><b>ร้านของฝาก</b><span>สินค้า · ติดต่อ</span></div>
-                <div class="sgrid">
-                  <div><b>กุนเชียง</b>180.-</div><div><b>หมูหยอง</b>120.-</div><div><b>ชุดของขวัญ</b>450.-</div>
-                </div>
-              </div>
-            </div>
-            <div class="kbody"><span class="ktick"></span><div>
-              <h3>เว็บไซต์ / ร้านค้า</h3><p>หลายหน้า มีเมนู แผนที่ ปุ่มทัก LINE</p></div></div>
+            <span class="kstage">
+              <span class="site">
+                <span class="snav"><b>ร้านของฝาก</b><span>สินค้า · ติดต่อ</span></span>
+                <span class="sgrid">
+                  <span class="cell"><b>กุนเชียง</b>180.-</span><span class="cell"><b>หมูหยอง</b>120.-</span><span class="cell"><b>ชุดของขวัญ</b>450.-</span>
+                </span>
+              </span>
+            </span>
+            <span class="kbody"><span class="ktick"></span><span>
+              <span class="ktitle">เว็บไซต์ / ร้านค้า</span><span class="kdesc">หลายหน้า มีเมนู แผนที่ ปุ่มทัก LINE</span></span></span>
           </label>
 
           <label class="kind">
             <input type="radio" name="kind" value="แบบสอบถาม">
-            <div class="kstage">
-              <div class="mini-q">ท่านพึงพอใจต่อการให้บริการเพียงใด</div>
-              <div class="bars" id="bars" role="group" aria-label="ตัวอย่างแถบให้คะแนน"></div>
-            </div>
-            <div class="kbody"><span class="ktick"></span><div>
-              <h3>แบบสอบถาม / สำรวจ</h3><p>เก็บความพึงพอใจ ลง Google Sheets ทันที</p></div></div>
+            <span class="kstage">
+              <span class="mini-q">ท่านพึงพอใจต่อการให้บริการเพียงใด</span>
+              <span class="bars" id="bars" role="group" aria-label="ตัวอย่างแถบให้คะแนน"></span>
+            </span>
+            <span class="kbody"><span class="ktick"></span><span>
+              <span class="ktitle">แบบสอบถาม / สำรวจ</span><span class="kdesc">เก็บความพึงพอใจ ลง Google Sheets ทันที</span></span></span>
           </label>
 
           <label class="kind">
             <input type="radio" name="kind" value="ข้อสอบ">
-            <div class="kstage">
-              <div class="ebar"><span>ข้อ 3 จาก 20</span><b id="clock">12:45</b></div>
-              <div class="eopt"><i>ก</i>45 องศา</div>
-              <div class="eopt on"><i>ข</i>90 องศา</div>
-            </div>
-            <div class="kbody"><span class="ktick"></span><div>
-              <h3>ข้อสอบ / แบบทดสอบ</h3><p>ตรวจอัตโนมัติ ออกเกียรติบัตรได้</p></div></div>
+            <span class="kstage">
+              <span class="ebar"><span>ข้อ 3 จาก 20</span><b id="clock">12:45</b></span>
+              <span class="eopt"><i>ก</i>45 องศา</span>
+              <span class="eopt on"><i>ข</i>90 องศา</span>
+            </span>
+            <span class="kbody"><span class="ktick"></span><span>
+              <span class="ktitle">ข้อสอบ / แบบทดสอบ</span><span class="kdesc">ตรวจอัตโนมัติ ออกเกียรติบัตรได้</span></span></span>
           </label>
 
           <label class="kind">
             <input type="radio" name="kind" value="เครื่องมือ">
-            <div class="kstage">
-              <div class="tool">
-                <div class="tnav"><b>สรุปงานเดือนนี้</b><span>เวร · บันทึก · สรุป</span></div>
-                <div class="tstats">
-                  <div><b>1,240</b><span>รายการ</span></div>
-                  <div><b>18</b><span>เวร</span></div>
-                  <div><b>96%</b><span>ครบ</span></div>
-                </div>
-                <div class="tbars"><i style="height:45%"></i><i style="height:70%"></i><i style="height:55%"></i><i style="height:90%"></i><i style="height:65%"></i><i style="height:80%"></i></div>
-              </div>
-            </div>
-            <div class="kbody"><span class="ktick"></span><div>
-              <h3>เว็บแอปช่วยงานประจำ</h3><p>ตารางเวร บันทึกข้อมูล สรุป Excel</p></div></div>
+            <span class="kstage">
+              <span class="tool">
+                <span class="tnav"><b>สรุปงานเดือนนี้</b><span>เวร · บันทึก · สรุป</span></span>
+                <span class="tstats">
+                  <span class="stat"><b>1,240</b><span>รายการ</span></span>
+                  <span class="stat"><b>18</b><span>เวร</span></span>
+                  <span class="stat"><b>96%</b><span>ครบ</span></span>
+                </span>
+                <span class="tbars"><i style="height:45%"></i><i style="height:70%"></i><i style="height:55%"></i><i style="height:90%"></i><i style="height:65%"></i><i style="height:80%"></i></span>
+              </span>
+            </span>
+            <span class="kbody"><span class="ktick"></span><span>
+              <span class="ktitle">เว็บแอปช่วยงานประจำ</span><span class="kdesc">ตารางเวร บันทึกข้อมูล สรุป Excel</span></span></span>
           </label>
         </div>
       </section>

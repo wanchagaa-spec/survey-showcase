@@ -11,7 +11,7 @@
 <style>
   :root{
     /* ── สี (แบรนด์เดิม) ── */
-    --ink:#12313A; --deep:#0A1F26; --accent:#DFA23C; --jade:#1E6E68;
+    --ink:#12313A; --deep:#0A1F26; --accent:#DFA23C; --jade:#1E6E68; --sky:#2D6A9F;
     --paper:#EFF3F2; --line:#D3DCDA; --muted:#63797E;
     --line-deep:#23444C;                 /* เส้นบนพื้นเข้ม */
     --on-deep:#B4CBCF;                    /* ตัวอักษรรองบนพื้นเข้ม (ผ่าน AA) */
@@ -200,8 +200,10 @@
   .end h2{font-size:var(--fs-h2)}
   .end p{color:var(--on-deep);margin-top:var(--s3);max-width:46ch;margin-left:auto;margin-right:auto}
   .end .cta{display:flex;gap:var(--s3);justify-content:center;flex-wrap:wrap;margin-top:var(--s6)}
-  .btn-fastwork{flex-direction:column;gap:2px;height:auto;padding:10px var(--s4)}
-  .btn-fastwork .fw-tag{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em}
+  .btn-fastwork{flex-direction:column;gap:2px;height:auto;padding:10px var(--s4);
+    background:var(--sky);color:#fff}
+  .btn-fastwork:hover{background:#3B82BE}
+  .btn-fastwork .fw-tag{font-size:14px;font-weight:700;color:#D7E8F5;letter-spacing:.04em}
   .end .btn{padding:0 var(--s6)}
 
   footer{background:var(--deep);color:var(--on-deep);font-size:var(--fs-sm);text-align:center;
@@ -423,7 +425,7 @@
     <p>บอกแค่ว่าอยากทำอะไร เดี๋ยวช่วยดูให้ว่าแบบไหนเหมาะและคุ้มที่สุด</p>
     <div class="cta">
       <a class="btn a" href="./brief.html">กรอกความต้องการ</a>
-      <a class="btn o btn-fastwork" href="https://fastwork.co/yourname" target="_blank" rel="noopener">สอบถามข้อมูลเพิ่มเติม<span class="fw-tag">Fastwork</span></a>
+      <a class="btn btn-fastwork" href="https://fastwork.co/yourname" target="_blank" rel="noopener">สอบถามข้อมูลเพิ่มเติม<span class="fw-tag">Fastwork</span></a>
       <a class="btn o" href="#pick">กลับไปดูตัวเลือก</a>
     </div>
   </div>

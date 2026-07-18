@@ -11,7 +11,7 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   :root{
-    --ink:#12313A; --deep:#0A1F26; --accent:#DFA23C; --jade:#1E6E68;
+    --ink:#12313A; --deep:#0A1F26; --accent:#DFA23C; --jade:#1E6E68; --sky:#2D6A9F;
     --paper:#EFF3F2; --line:#D3DCDA; --muted:#63797E;
     --line-deep:#23444C; --on-deep:#B4CBCF; --sel:#EEF5F4;
 
@@ -177,6 +177,15 @@
   .warn.on{display:block}
   .reveal{display:none;margin-top:var(--s4);padding-top:var(--s4);border-top:1px dashed var(--line)}
   .reveal.on{display:block}
+  .reveal input[type=text]{width:100%}
+
+  .addmore{margin-top:var(--s3);min-height:auto;padding:8px 16px;font-size:13.5px}
+  .addlist:not(:empty){margin-top:var(--s3)}
+  .extra-row{display:flex;gap:8px;margin-top:8px}
+  .extra-row input{flex:1}
+  .extra-row .remove-row{flex:none;width:44px;border:1.5px solid var(--line);border-radius:var(--r);
+    background:#fff;color:var(--muted);cursor:pointer;font-size:15px}
+  .extra-row .remove-row:hover{border-color:#B23A2E;color:#B23A2E}
 
   /* ── รางสรุปขอบเขต ── */
   .rail{align-self:start;position:sticky;top:var(--s5)}
@@ -216,6 +225,9 @@
   .btn.o:hover{border-color:var(--jade);color:var(--jade)}
   .btn:focus-visible{outline:3px solid var(--jade);outline-offset:3px}
   .btn:disabled{opacity:.45;cursor:not-allowed}
+  .c-actions{display:flex;justify-content:flex-end;gap:var(--s3);flex-wrap:wrap}
+  .btn-fastwork-c{background:var(--sky);color:#fff}
+  .btn-fastwork-c:hover{background:#3B82BE}
   .rail-actions{display:flex;flex-direction:column;gap:var(--s3);margin-top:var(--s4)}
   .rail-actions .btn{width:100%}
   .btn.p{background:var(--ink);color:#fff}
@@ -278,7 +290,7 @@
 
 <header class="top">
   <div class="wrap">
-    <a class="backlink" href="./index.html">← กลับหน้าตัวอย่าง</a>
+    <a class="backlink" href="./index.html">← หน้าแรก</a>
     <div class="eyebrow">แบบฟอร์มรับความต้องการ</div>
     <h1>เลือกงานที่ต้องการ แล้วตอบเฉพาะคำถามของงานนั้น</h1>
     <p>ใช้เวลาราว 5 นาที ตอบเท่าที่รู้ ข้อไหนไม่แน่ใจข้ามได้ ระบบจะประเมินขอบเขตและเวลาให้เห็นสด ๆ เสร็จแล้วกดดาวน์โหลดไฟล์ส่งกลับมา</p>
@@ -366,7 +378,9 @@
               <label class="chip"><input type="radio" name="siteType" value="ร้านค้า / ธุรกิจ"><span class="dot"></span>ร้านค้า ธุรกิจ</label>
               <label class="chip"><input type="radio" name="siteType" value="เว็บอีเวนต์ / หน้าเดียวจบ"><span class="dot"></span>อีเวนต์ หน้าเดียว</label>
               <label class="chip"><input type="radio" name="siteType" value="โปรไฟล์ / ผลงาน"><span class="dot"></span>โปรไฟล์ ผลงาน</label>
+              <label class="chip"><input type="radio" name="siteType" value="อื่น ๆ" data-reveal="siteTypeOther"><span class="dot"></span>อื่น ๆ</label>
             </div>
+            <div class="reveal" id="r-siteTypeOther"><input type="text" name="siteTypeOtherText" placeholder="ระบุประเภทเว็บไซต์"></div>
           </div>
 
           <div class="f">
@@ -377,7 +391,9 @@
               <label class="chip"><input type="radio" name="audience" value="ผู้ป่วย / ญาติ"><span class="dot"></span>ผู้ป่วย ญาติ</label>
               <label class="chip"><input type="radio" name="audience" value="ลูกค้าซื้อของ"><span class="dot"></span>ลูกค้าซื้อของ</label>
               <label class="chip"><input type="radio" name="audience" value="หน่วยงานอื่น / คู่ค้า"><span class="dot"></span>หน่วยงาน คู่ค้า</label>
+              <label class="chip"><input type="radio" name="audience" value="อื่น ๆ" data-reveal="audienceOther"><span class="dot"></span>อื่น ๆ</label>
             </div>
+            <div class="reveal" id="r-audienceOther"><input type="text" name="audienceOtherText" placeholder="ระบุกลุ่มผู้เข้าเว็บหลัก"></div>
           </div>
 
           <div class="f">
@@ -389,7 +405,9 @@
               <label class="chip"><input type="radio" name="primaryGoal" value="มาที่ตั้ง / ดูแผนที่"><span class="dot"></span>มาที่ตั้ง</label>
               <label class="chip"><input type="radio" name="primaryGoal" value="ดาวน์โหลดเอกสาร"><span class="dot"></span>ดาวน์โหลดเอกสาร</label>
               <label class="chip"><input type="radio" name="primaryGoal" value="ดูข้อมูล / อ่านข่าว"><span class="dot"></span>ดูข้อมูล อ่านข่าว</label>
+              <label class="chip"><input type="radio" name="primaryGoal" value="อื่น ๆ" data-reveal="primaryGoalOther"><span class="dot"></span>อื่น ๆ</label>
             </div>
+            <div class="reveal" id="r-primaryGoalOther"><input type="text" name="primaryGoalOtherText" placeholder="ระบุสิ่งที่อยากให้คนเข้าเว็บทำ"></div>
           </div>
 
           <div class="f">
@@ -412,6 +430,8 @@
               <label class="chip"><input type="checkbox" name="pages" value="ติดต่อเรา + แผนที่"><span class="dot"></span>ติดต่อ + แผนที่</label>
               <label class="chip"><input type="checkbox" name="pages" value="คำถามที่พบบ่อย"><span class="dot"></span>คำถามที่พบบ่อย</label>
             </div>
+            <div class="addlist" id="pagesExtra"></div>
+            <button type="button" class="btn o addmore" data-addlist="pagesExtra" data-addname="pagesOther" data-addplaceholder="ระบุหน้าที่ต้องการเพิ่ม">+ อื่น ๆ</button>
             <div class="warn" id="w5">เกิน 5 หน้า จะมีค่าใช้จ่ายเพิ่มเติม</div>
           </div>
 
@@ -423,7 +443,6 @@
               <label class="chip big"><input type="radio" name="content" value="มีบางส่วน" data-add="copy1"><b>มีบางส่วน ต้องช่วยเรียบเรียง</b><i>มีข้อมูลดิบ แต่ต้องจัดใหม่ให้อ่านง่าย</i></label>
               <label class="chip big"><input type="radio" name="content" value="ยังไม่มีเลย" data-add="copy2"><b>ยังไม่มีเลย ให้ช่วยเขียนให้</b><i>ต้องสัมภาษณ์เก็บข้อมูลและหารูปประกอบ</i></label>
             </div>
-            <div class="note">งานเว็บที่ล่าช้าเกือบทุกงานมาจาก<b>เนื้อหายังไม่พร้อม</b> ไม่ใช่โค้ด ถ้ายังไม่มีเนื้อหา แจ้งไว้ตรงนี้ จะได้กำหนดเวลาตรงความจริง</div>
           </div>
 
           <div class="f">
@@ -432,8 +451,7 @@
             <div class="chips">
               <label class="chip"><input type="radio" name="photos" value="มีพร้อมใช้"><span class="dot"></span>มีพร้อมใช้</label>
               <label class="chip"><input type="radio" name="photos" value="มีบางส่วน"><span class="dot"></span>มีบางส่วน</label>
-              <label class="chip"><input type="radio" name="photos" value="ต้องใช้ภาพสต็อก" data-add="stock"><span class="dot"></span>ใช้ภาพสต็อก<span class="tag">งานเพิ่ม</span></label>
-              <label class="chip"><input type="radio" name="photos" value="ต้องไปถ่ายให้" data-add="shoot"><span class="dot"></span>ต้องไปถ่าย<span class="tag">งานเพิ่ม</span></label>
+              <label class="chip"><input type="radio" name="photos" value="ยังไม่มี ไว้ใส่ทีหลัง"><span class="dot"></span>ยังไม่มี ไว้ใส่ทีหลัง</label>
             </div>
           </div>
 
@@ -464,14 +482,6 @@
           </div>
 
           <div class="f">
-            <div class="f-label">โลโก้</div>
-            <div class="chips">
-              <label class="chip"><input type="radio" name="logo" value="มีแล้ว"><span class="dot"></span>มีแล้ว</label>
-              <label class="chip"><input type="radio" name="logo" value="ให้ออกแบบให้" data-add="logo"><span class="dot"></span>ให้ออกแบบให้<span class="tag">งานเพิ่ม</span></label>
-            </div>
-          </div>
-
-          <div class="f">
             <div class="f-label">แก้ไขเนื้อหาเองได้หรือไม่ <span class="req">*</span></div>
             <div class="chips stack">
               <label class="chip big"><input type="radio" name="cms" value="ให้ผู้พัฒนาแก้ให้"><b>ให้ผู้พัฒนาแก้ให้</b><i>แจ้งมาแล้วแก้ให้ตามรอบ ฟรี 3 ครั้ง</i></label>
@@ -485,9 +495,7 @@
             <div class="chips stack">
               <label class="chip big"><input type="radio" name="shop" value="ไม่ขาย"><b>ไม่ขาย</b><i>แสดงข้อมูลอย่างเดียว</i></label>
               <label class="chip big"><input type="radio" name="shop" value="โชว์สินค้า สั่งซื้อทาง LINE"><b>โชว์สินค้า สั่งซื้อทาง LINE</b><i>มีปุ่มทักแชท ไม่มีตะกร้า เหมาะร้านเล็ก</i></label>
-              <label class="chip big"><input type="radio" name="shop" value="ตะกร้า + ชำระเงินออนไลน์" data-add="cart" data-reveal="cart"><b>ตะกร้า + ชำระเงินออนไลน์</b><i>เลือกสินค้า คิดเงิน จ่ายผ่านระบบ</i></label>
             </div>
-            <div class="reveal" id="r-cart"><div class="note">ระบบตะกร้าจริงต้องมีเซิร์ฟเวอร์และมีค่าธรรมเนียมต่อรายการ <b>ร้านเล็ก–กลางแนะนำ Shopee / LINE MyShop / Facebook Shop</b> แล้วให้เว็บโชว์สินค้าและลิงก์ไปแทน</div></div>
           </div>
 
           <div class="f">
@@ -507,7 +515,9 @@
               <label class="chip"><input type="checkbox" name="connect" value="ปุ่มโทรออก"><span class="dot"></span>ปุ่มโทรออก</label>
               <label class="chip"><input type="checkbox" name="connect" value="แผนที่ Google Maps"><span class="dot"></span>แผนที่</label>
               <label class="chip"><input type="checkbox" name="connect" value="Facebook Page"><span class="dot"></span>Facebook</label>
+              <label class="chip"><input type="checkbox" name="connect" value="อื่น ๆ" data-reveal="connectOther"><span class="dot"></span>อื่น ๆ</label>
             </div>
+            <div class="reveal" id="r-connectOther"><input type="text" name="connectOtherText" placeholder="ระบุสิ่งที่ต้องเชื่อมต่อเพิ่มเติม"></div>
           </div>
 
           <div class="f" id="fGov" hidden>
@@ -520,15 +530,6 @@
               <label class="chip"><input type="checkbox" name="govRequired" value="ทำเนียบผู้บริหาร"><span class="dot"></span>ผู้บริหาร</label>
               <label class="chip"><input type="checkbox" name="govRequired" value="ช่องทางร้องเรียน"><span class="dot"></span>ช่องร้องเรียน</label>
             </div>
-          </div>
-
-          <div class="f">
-            <div class="f-label">ให้คนหาเจอใน Google</div>
-            <div class="chips">
-              <label class="chip"><input type="radio" name="seo" value="ตั้งค่าพื้นฐานพอ"><span class="dot"></span>พื้นฐานพอ</label>
-              <label class="chip"><input type="radio" name="seo" value="ทำ SEO เต็มที่" data-add="seo"><span class="dot"></span>ทำ SEO เต็มที่<span class="tag">งานเพิ่ม</span></label>
-            </div>
-            <div class="note">ตั้งค่าพื้นฐาน (ชื่อ คำอธิบาย แผนผังเว็บ) ทำให้ทุกงานอยู่แล้ว แต่<b>ติดอันดับต้น ๆ ไม่มีใครรับประกันได้</b></div>
           </div>
 
           <div class="f">
@@ -565,7 +566,9 @@
               <label class="chip"><input type="radio" name="purpose" value="ITA / ราชการ"><span class="dot"></span>ITA ราชการ</label>
               <label class="chip"><input type="radio" name="purpose" value="ปรับปรุงบริการ"><span class="dot"></span>ปรับปรุงบริการ</label>
               <label class="chip"><input type="radio" name="purpose" value="งานวิจัย"><span class="dot"></span>งานวิจัย</label>
+              <label class="chip"><input type="radio" name="purpose" value="อื่น ๆ" data-reveal="purposeOther"><span class="dot"></span>อื่น ๆ</label>
             </div>
+            <div class="reveal" id="r-purposeOther"><input type="text" name="purposeOtherText" placeholder="ระบุจุดประสงค์"></div>
           </div>
 
           <div class="f">
@@ -575,7 +578,10 @@
               <label class="chip"><input type="radio" name="respondents" value="ผู้ป่วย / ผู้สูงอายุ"><span class="dot"></span>ผู้ป่วย ผู้สูงอายุ</label>
               <label class="chip"><input type="radio" name="respondents" value="ประชาชนทั่วไป"><span class="dot"></span>ประชาชนทั่วไป</label>
               <label class="chip"><input type="radio" name="respondents" value="พนักงาน / เจ้าหน้าที่"><span class="dot"></span>พนักงาน</label>
+              <label class="chip"><input type="radio" name="respondents" value="นักเรียน / นักศึกษา"><span class="dot"></span>นักเรียน นักศึกษา</label>
+              <label class="chip"><input type="radio" name="respondents" value="อื่น ๆ" data-reveal="respondentsOther"><span class="dot"></span>อื่น ๆ</label>
             </div>
+            <div class="reveal" id="r-respondentsOther"><input type="text" name="respondentsOtherText" placeholder="ระบุกลุ่มผู้ตอบ"></div>
           </div>
 
           <div class="f">
@@ -614,6 +620,7 @@
 
           <div class="f">
             <div class="f-label">รูปแบบคำถามที่ต้องใช้</div>
+            <div class="hint">เลือกได้หลายคำตอบ</div>
             <div class="chips">
               <label class="chip"><input type="checkbox" name="qtypes" value="ให้คะแนน 1-5"><span class="dot"></span>ให้คะแนน 1–5</label>
               <label class="chip"><input type="checkbox" name="qtypes" value="เลือกตอบเดียว"><span class="dot"></span>เลือกตอบเดียว</label>
@@ -679,10 +686,14 @@
             <div class="hint">ข้อสอบต้องระบุตัวตน ไม่งั้นออกผลและเกียรติบัตรไม่ได้</div>
             <div class="chips">
               <label class="chip"><input type="checkbox" name="examId" value="ชื่อ-สกุล"><span class="dot"></span>ชื่อ–สกุล</label>
+              <label class="chip"><input type="checkbox" name="examId" value="เลขที่"><span class="dot"></span>เลขที่</label>
+              <label class="chip"><input type="checkbox" name="examId" value="รหัสนักเรียน"><span class="dot"></span>รหัสนักเรียน</label>
               <label class="chip"><input type="checkbox" name="examId" value="รหัสพนักงาน"><span class="dot"></span>รหัสพนักงาน</label>
               <label class="chip"><input type="checkbox" name="examId" value="หน่วยงาน"><span class="dot"></span>หน่วยงาน</label>
               <label class="chip"><input type="checkbox" name="examId" value="อีเมล"><span class="dot"></span>อีเมล</label>
             </div>
+            <div class="addlist" id="examIdExtra"></div>
+            <button type="button" class="btn o addmore" data-addlist="examIdExtra" data-addname="examIdOther" data-addplaceholder="ระบุข้อมูลที่ต้องกรอกเพิ่ม">+ อื่น ๆ</button>
           </div>
 
           <div class="f">
@@ -895,18 +906,11 @@
             </div>
           </div>
           <div class="f">
-            <div class="row">
-              <div><div class="f-label">ผู้ใช้ใช้เครื่องอะไรเป็นหลัก <span class="req">*</span></div>
-                <div class="chips">
-                  <label class="chip"><input type="radio" name="device" value="มือถือ"><span class="dot"></span>มือถือ</label>
-                  <label class="chip"><input type="radio" name="device" value="คอมพิวเตอร์"><span class="dot"></span>คอมพิวเตอร์</label>
-                  <label class="chip"><input type="radio" name="device" value="ทั้งสองอย่าง"><span class="dot"></span>ทั้งสอง</label>
-                </div></div>
-              <div><div class="f-label">ต้องมีภาษาอังกฤษด้วยไหม</div>
-                <div class="chips">
-                  <label class="chip"><input type="radio" name="lang" value="ไทยอย่างเดียว"><span class="dot"></span>ไทยอย่างเดียว</label>
-                  <label class="chip"><input type="radio" name="lang" value="ไทย+อังกฤษ" data-add="lang"><span class="dot"></span>ไทย + อังกฤษ<span class="tag">งานเพิ่ม</span></label>
-                </div></div>
+            <div class="f-label">ผู้ใช้ใช้เครื่องอะไรเป็นหลัก <span class="req">*</span></div>
+            <div class="chips">
+              <label class="chip"><input type="radio" name="device" value="มือถือ"><span class="dot"></span>มือถือ</label>
+              <label class="chip"><input type="radio" name="device" value="คอมพิวเตอร์"><span class="dot"></span>คอมพิวเตอร์</label>
+              <label class="chip"><input type="radio" name="device" value="ทั้งสองอย่าง"><span class="dot"></span>ทั้งสอง</label>
             </div>
           </div>
         </div>
@@ -980,6 +984,11 @@
           <div class="f">
             <label for="notes">อยากบอกอะไรเพิ่มเติม</label>
             <textarea id="notes" name="notes" placeholder="รายละเอียดอื่น ๆ ที่อยากให้รู้"></textarea>
+            <div class="hint" style="margin-top:10px">กรอกแบบฟอร์มเสร็จแล้ว กดดาวน์โหลดแล้วส่งมาที่ Fastwork หรือ login Email แล้วกดส่งความต้องการ</div>
+          </div>
+          <div class="f c-actions">
+            <button type="button" class="btn o" id="downloadBrief">ดาวน์โหลด</button>
+            <a class="btn btn-fastwork-c" id="fastworkBtnC" href="#" target="_blank" rel="noopener">ติดต่อที่ Fastwork</a>
           </div>
         </div>
       </fieldset>
@@ -1059,14 +1068,14 @@
   const BASE={ 'เว็บไซต์':[5,7], 'แบบสอบถาม':[2,3], 'ข้อสอบ':[3,4] };
   const ADD={
     news:['หน้าข่าว/กิจกรรม',1], copy1:['ช่วยเรียบเรียงเนื้อหา',2], copy2:['เขียนเนื้อหา+หารูป',4],
-    stock:['หาภาพสต็อก',1], shoot:['ไปถ่ายภาพ',3], logo:['ออกแบบโลโก้',2], cms1:['CMS ผ่าน Google Sheets',2],
-    cms2:['ระบบล็อกอิน (คุยราคาแยก)',0], cart:['ตะกร้า/ชำระเงิน (คุยราคาแยก)',0], domain:['จดโดเมน',0],
-    cform:['ฟอร์มติดต่อเข้าอีเมล',1], seo:['ทำ SEO เต็มที่',2],
+    cms1:['CMS ผ่าน Google Sheets',2],
+    cms2:['ระบบล็อกอิน (คุยราคาแยก)',0], domain:['จดโดเมน',0],
+    cform:['ฟอร์มติดต่อเข้าอีเมล',1],
     pdpa:['เก็บข้อมูล+เอกสาร PDPA',1], draftS:['ช่วยร่างคำถาม',2], skip:['ตั้งข้ามข้ออัตโนมัติ',1], close:['ตั้งปิดรับอัตโนมัติ',0],
     makeExam:['ช่วยออกข้อสอบ+เฉลย',3], prepost:['ระบบก่อน–หลังอบรม',1], essay:['หน้าตรวจอัตนัย (งานแยก)',0],
     img:['รูปประกอบข้อสอบ',1], load:['รองรับสอบพร้อมกันจำนวนมาก',0], bank:['คลังข้อสอบสุ่ม',2], cert:['เกียรติบัตรอัตโนมัติ',1],
     auth:['หน้าดูผลใส่รหัส',1], dash1:['สรุปผลพื้นฐาน',1], dash2:['สรุปผลเต็มรูปแบบ',3], pdf:['รายงาน PDF',1],
-    alert:['แจ้งเตือนอัตโนมัติ',1], host:['จัดหาบัญชี/โฮสต์',0], step:['แสดงทีละข้อ',1], lang:['ไทย+อังกฤษ',2]
+    alert:['แจ้งเตือนอัตโนมัติ',1], host:['จัดหาบัญชี/โฮสต์',0], step:['แสดงทีละข้อ',1]
   };
 
   const kind = () => (form.elements['kind']||{}).value || '';
@@ -1190,11 +1199,12 @@
 
   /* ช่องทางสำรองเมื่อส่งอัตโนมัติไม่สำเร็จ — ใส่ข้อมูลจริงแทน placeholder ก่อนใช้งานจริง */
   const CONTACT = {
-    EMAIL:    "you@example.com",
+    EMAIL:    "wanchagaa.fe@gmail.com",
     FASTWORK: "https://fastwork.co/yourname"
   };
-  const fbFastwork=$('#fastworkBtn'), fbEmail=$('#emailBtn');
+  const fbFastwork=$('#fastworkBtn'), fbEmail=$('#emailBtn'), fbFastworkC=$('#fastworkBtnC');
   if(fbFastwork) fbFastwork.href=CONTACT.FASTWORK;
+  if(fbFastworkC) fbFastworkC.href=CONTACT.FASTWORK;
   if(fbEmail) fbEmail.href='mailto:'+CONTACT.EMAIL+'?subject='+encodeURIComponent('ส่งไฟล์ brief.json')+'&body='+encodeURIComponent('แนบไฟล์ brief.json ที่ดาวน์โหลดไว้มากับอีเมลนี้ได้เลยครับ');
   const showFallbackHelp=()=>{ const p=$('#fallbackHelp'); if(p) p.hidden=false; };
 
@@ -1282,6 +1292,29 @@
   }
   $('#send').addEventListener('click',submit);
   $('#sendM').addEventListener('click',submit);
+
+  /* ปุ่มดาวน์โหลด brief.json ด้วยตัวเอง (ไม่ผ่าน Google sign-in) */
+  const downloadBriefBtn=$('#downloadBrief');
+  if(downloadBriefBtn) downloadBriefBtn.addEventListener('click',()=>fallback(collect()));
+
+  /* ปุ่ม "+ อื่น ๆ" ที่เพิ่มช่องกรอกเองได้เรื่อย ๆ */
+  const addCounters={};
+  $$('.addmore').forEach(btn=>{
+    const key=btn.dataset.addname;
+    addCounters[key]=0;
+    btn.addEventListener('click',()=>{
+      const box=$('#'+btn.dataset.addlist); if(!box) return;
+      addCounters[key]++;
+      const row=document.createElement('div'); row.className='extra-row';
+      const inp=document.createElement('input');
+      inp.type='text'; inp.name=key+addCounters[key];
+      inp.placeholder=btn.dataset.addplaceholder||'ระบุเพิ่มเติม';
+      const rm=document.createElement('button');
+      rm.type='button'; rm.className='remove-row'; rm.setAttribute('aria-label','ลบ'); rm.textContent='✕';
+      rm.addEventListener('click',()=>row.remove());
+      row.appendChild(inp); row.appendChild(rm); box.appendChild(row); inp.focus();
+    });
+  });
 
   /* prefill kind จาก ?kind= */
   const p=new URLSearchParams(location.search).get('kind');

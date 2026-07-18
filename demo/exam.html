@@ -108,6 +108,9 @@ const CONFIG = {
   header{background:var(--ink);color:#fff;padding:26px 20px;position:relative}
   header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;
     background:linear-gradient(90deg,var(--accent) 0 30%,var(--jade) 30%)}
+  .home-link{display:inline-block;color:rgba(255,255,255,.75);text-decoration:none;
+    font-size:13px;margin-bottom:10px}
+  .home-link:hover{color:#fff}
   .eyebrow{font-family:"Bai Jamjuree";font-size:13px;letter-spacing:.08em;
     text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:6px}
   header h1{font-size:23px;line-height:1.35}
@@ -249,6 +252,7 @@ const CONFIG = {
 <!-- ── 1. หน้าเริ่ม ─────────────────────────────────────────── -->
 <section id="s1" class="screen on">
   <header>
+    <a class="home-link" href="../index.html">← หน้าแรก</a>
     <div class="eyebrow" id="h-org"></div>
     <h1 id="h-title"></h1>
     <p id="h-sub"></p>

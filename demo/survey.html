@@ -141,6 +141,9 @@ const CONFIG = {
     background:var(--ink); color:#fff;
     padding:26px 20px 22px; position:relative;
   }
+  .home-link{display:inline-block;color:rgba(255,255,255,.75);text-decoration:none;
+    font-size:13px;margin-bottom:10px}
+  .home-link:hover{color:#fff}
   header::after{
     content:""; position:absolute; left:0; right:0; bottom:0; height:4px;
     background:linear-gradient(90deg,var(--accent) 0 30%,var(--jade) 30% 100%);
@@ -273,6 +276,7 @@ const CONFIG = {
 <div id="app">
   <div class="bar"><i id="prog"></i></div>
   <header>
+    <a class="home-link" href="../index.html">← หน้าแรก</a>
     <img id="logo" class="hidden" alt="" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==">
     <div class="brand" id="org"></div>
     <h1 id="title"></h1>

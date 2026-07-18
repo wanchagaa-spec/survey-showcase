@@ -1017,6 +1017,14 @@
         </div>
         <button type="button" class="btn a" id="send" disabled>ส่งความต้องการ</button>
         <div id="say"></div>
+        <div class="note" id="fallbackHelp" hidden>
+          ส่งอัตโนมัติไม่สำเร็จ ระบบดาวน์โหลดไฟล์ <b>brief.json</b> ให้แล้ว
+          กรุณาแนบไฟล์นี้ส่งมาทาง Fastwork หรืออีเมลแทน
+          <div class="rail-actions" style="margin-top:var(--s3)">
+            <a class="btn a" id="fastworkBtn" href="#" target="_blank" rel="noopener">แชทผ่าน Fastwork</a>
+            <a class="btn o" id="emailBtn" href="#">ส่งทางอีเมลแทน</a>
+          </div>
+        </div>
       </div>
     </aside>
 
@@ -1180,6 +1188,16 @@
     REQUIRE_LOGIN: true
   };
 
+  /* ช่องทางสำรองเมื่อส่งอัตโนมัติไม่สำเร็จ — ใส่ข้อมูลจริงแทน placeholder ก่อนใช้งานจริง */
+  const CONTACT = {
+    EMAIL:    "you@example.com",
+    FASTWORK: "https://fastwork.co/yourname"
+  };
+  const fbFastwork=$('#fastworkBtn'), fbEmail=$('#emailBtn');
+  if(fbFastwork) fbFastwork.href=CONTACT.FASTWORK;
+  if(fbEmail) fbEmail.href='mailto:'+CONTACT.EMAIL+'?subject='+encodeURIComponent('ส่งไฟล์ brief.json')+'&body='+encodeURIComponent('แนบไฟล์ brief.json ที่ดาวน์โหลดไว้มากับอีเมลนี้ได้เลยครับ');
+  const showFallbackHelp=()=>{ const p=$('#fallbackHelp'); if(p) p.hidden=false; };
+
   const say=(t,bad)=>{const s=$('#say');s.textContent=t;s.style.color=bad?'#B23A2E':'var(--jade)';
     clearTimeout(say._t);say._t=setTimeout(()=>s.textContent='',4000);};
 
@@ -1243,7 +1261,7 @@
     const s=$('#send'),sm=$('#sendM'); [s,sm].forEach(b=>{if(b){b.disabled=true;b.textContent='กำลังส่ง…';}});
 
     if(!SEND.ENDPOINT){ fallback(d); [s,sm].forEach(b=>{if(b){b.disabled=false;b.textContent='ส่งความต้องการ';}});
-      say('ยังไม่ได้ตั้งค่าการส่ง จึงดาวน์โหลดไฟล์ให้แทน',true); return; }
+      say('ยังไม่ได้ตั้งค่าการส่ง จึงดาวน์โหลดไฟล์ให้แทน',true); showFallbackHelp(); return; }
 
     try{
       const r=await fetch(SEND.ENDPOINT,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
@@ -1257,8 +1275,9 @@
       window.scrollTo({top:0,behavior:'smooth'});
     }catch(err){
       [s,sm].forEach(b=>{if(b){b.disabled=false;b.textContent='ลองส่งอีกครั้ง';}});
-      say('ส่งไม่สำเร็จ ระบบดาวน์โหลดไฟล์ให้แทน กรุณาส่งไฟล์นี้มาทางไลน์',true);
+      say('ส่งไม่สำเร็จ ระบบดาวน์โหลดไฟล์ให้แทน กรุณาส่งไฟล์นี้มาทางอีเมลแทน',true);
       fallback(d);
+      showFallbackHelp();
     }
   }
   $('#send').addEventListener('click',submit);

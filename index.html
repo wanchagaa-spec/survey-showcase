@@ -52,6 +52,11 @@
   .hero h1{font-size:var(--fs-display);line-height:1.3;max-width:18ch;font-weight:700;
     text-align:center;margin:0 auto}
   .hero h1 em{font-style:normal;color:var(--accent)}
+  .hero h1 .br-m{display:block}
+  @media(min-width:641px){
+    .hero h1{max-width:34ch}
+    .hero h1 .br-m{display:none}
+  }
   .hero p{color:var(--on-deep);font-size:18px;margin-top:var(--s4);max-width:52ch;
     text-align:center;margin-left:auto;margin-right:auto}
   .facts{display:grid;grid-template-columns:repeat(3,1fr);margin-top:var(--s6);
@@ -221,7 +226,7 @@
 <header class="hero">
   <div class="wrap">
     <div class="eyebrow">เว็บไซต์ · แบบสอบถาม · ข้อสอบออนไลน์</div>
-    <h1><em>สร้างเว็บไซต์</em><br>แบบสอบถามออนไลน์<br><em>ข้อสอบออนไลน์</em><br>ตามความต้องการของคุณ</h1>
+    <h1><em>สร้างเว็บไซต์</em> <br class="br-m">แบบสอบถามออนไลน์<br><em>ข้อสอบออนไลน์</em> <br class="br-m">ตามความต้องการของคุณ</h1>
     <p>ทุกตัวอย่างกดเล่นได้จริง ไม่ต้องสมัคร ไม่ต้องผูกมัด ถูกใจแล้วค่อยแจ้งความต้องการ</p>
     <div class="facts">
       <div class="fact"><b>ไม่มีค่ารายเดือน</b>ใช้บัญชี Google ของท่านเอง</div>

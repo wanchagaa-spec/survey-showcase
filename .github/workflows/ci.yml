@@ -19,10 +19,9 @@ jobs:
           # summary.html embeds the vendored js-codepage library (SheetJS),
           # whose codepage tables are legitimate raw control-byte string
           # literals — not an authoring bug, so it's excluded here.
-          # googleefff10fd12df70f2.html and google64f42b4a692641d6.html are
-          # Google Search Console ownership verification files — their
-          # required content is plain text, not HTML.
-          blacklist: .agents .claude summary.html googleefff10fd12df70f2.html google64f42b4a692641d6.html
+          # google64f42b4a692641d6.html is a Google Search Console ownership
+          # verification file — its required content is plain text, not HTML.
+          blacklist: .agents .claude summary.html google64f42b4a692641d6.html
           # exam.html/survey.html use calc()+env(safe-area-inset-bottom) for
           # iOS safe-area padding, which is valid modern CSS but trips the
           # bundled vnu.jar CSS checker's parser. This action passes `extra`

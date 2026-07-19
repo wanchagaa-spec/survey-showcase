@@ -25,7 +25,7 @@ jobs:
       - name: Prepare site
         run: |
           mkdir -p _site
-          cp index.html brief.html robots.txt sitemap.xml googleefff10fd12df70f2.html google64f42b4a692641d6.html _site/
+          cp index.html brief.html robots.txt sitemap.xml google64f42b4a692641d6.html _site/
           cp -r demo _site/
       - name: Setup Pages
         uses: actions/configure-pages@v5
